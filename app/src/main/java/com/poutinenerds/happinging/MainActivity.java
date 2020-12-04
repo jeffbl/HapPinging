@@ -1,4 +1,4 @@
-package com.neosensory.neosensoryblessedexample;
+package com.poutinenerds.happinging;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.poutinenerds.happinging.R;
 import com.neosensory.neosensoryblessed.NeosensoryBlessed;
 
 import com.potterhsu.Pinger;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
   // Variable to track whether or not the wristband should be vibrating
   private static boolean vibrating = false;
   private static boolean disconnectRequested =
-      false; // used for requesting a disconnect within our thread
+          false; // used for requesting a disconnect within our thread
   Runnable vibratingPattern;
   Thread vibratingPatternThread;
 
@@ -84,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
       while (!Thread.currentThread().isInterrupted() && vibrating) {
         try {
           if(pinger.ping("8.8.8.8", 2) == false) {  //if ping succeeds before timeout
-            //neoVibe.sweepBounce(0.0F,1.0F,255,1000);
-            neoVibe.stuffBufferTest();
+            neoVibe.sweepBounce(0.0F,1.0F,255,1000);
+            //neoVibe.stuffBufferTest();
           }
           Thread.sleep(6*1000);
         } catch (InterruptedException e) {
@@ -193,46 +194,46 @@ public class MainActivity extends AppCompatActivity {
   // 3. "com.neosensory.neosensoryblessed.CliMessage": conveys a message sent to Android from a
   // connected Neosensory device's command line interface
   private final BroadcastReceiver BlessedReceiver =
-      new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-          if (intent.hasExtra("com.neosensory.neosensoryblessed.CliReadiness")) {
-            // Check the message from NeosensoryBlessed to see if a Neosensory Command Line
-            // Interface
-            // has become ready to accept commands
-            // Prior to calling other API commands we need to accept the Neosensory API ToS
-            if (intent.getBooleanExtra("com.neosensory.neosensoryblessed.CliReadiness", false)) {
-              // request developer level access to the connected Neosensory device
-              blessedNeo.sendDeveloperAPIAuth();
-              // sendDeveloperAPIAuth() will then transmit a message back requiring an explicit
-              // acceptance of Neosensory's Terms of Service located at
-              // https://neosensory.com/legal/dev-terms-service/
-              blessedNeo.acceptApiTerms();
-              Log.i(TAG, String.format("state message: %s", blessedNeo.getNeoCliResponse()));
-              // Assuming successful authorization, set up a button to run the vibrating pattern
-              // thread above
-              displayVibrateButton();
-              displayDisconnectUI();
-            } else {
-              displayReconnectUI();
-            }
-          }
+          new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+              if (intent.hasExtra("com.neosensory.neosensoryblessed.CliReadiness")) {
+                // Check the message from NeosensoryBlessed to see if a Neosensory Command Line
+                // Interface
+                // has become ready to accept commands
+                // Prior to calling other API commands we need to accept the Neosensory API ToS
+                if (intent.getBooleanExtra("com.neosensory.neosensoryblessed.CliReadiness", false)) {
+                  // request developer level access to the connected Neosensory device
+                  blessedNeo.sendDeveloperAPIAuth();
+                  // sendDeveloperAPIAuth() will then transmit a message back requiring an explicit
+                  // acceptance of Neosensory's Terms of Service located at
+                  // https://neosensory.com/legal/dev-terms-service/
+                  blessedNeo.acceptApiTerms();
+                  Log.i(TAG, String.format("state message: %s", blessedNeo.getNeoCliResponse()));
+                  // Assuming successful authorization, set up a button to run the vibrating pattern
+                  // thread above
+                  displayVibrateButton();
+                  displayDisconnectUI();
+                } else {
+                  displayReconnectUI();
+                }
+              }
 
-          if (intent.hasExtra("com.neosensory.neosensoryblessed.CliMessage")) {
-            String notification_value =
-                intent.getStringExtra("com.neosensory.neosensoryblessed.CliMessage");
-            neoCliOutput.setText(notification_value);
-          }
+              if (intent.hasExtra("com.neosensory.neosensoryblessed.CliMessage")) {
+                String notification_value =
+                        intent.getStringExtra("com.neosensory.neosensoryblessed.CliMessage");
+                neoCliOutput.setText(notification_value);
+              }
 
-          if (intent.hasExtra("com.neosensory.neosensoryblessed.ConnectedState")) {
-            if (intent.getBooleanExtra("com.neosensory.neosensoryblessed.ConnectedState", false)) {
-              Log.i(TAG, "Connected to Buzz");
-            } else {
-              Log.i(TAG, "Disconnected from Buzz");
+              if (intent.hasExtra("com.neosensory.neosensoryblessed.ConnectedState")) {
+                if (intent.getBooleanExtra("com.neosensory.neosensoryblessed.ConnectedState", false)) {
+                  Log.i(TAG, "Connected to Buzz");
+                } else {
+                  Log.i(TAG, "Disconnected from Buzz");
+                }
+              }
             }
-          }
-        }
-      };
+          };
 
   ///////////////////////////////////
   // User interface functionality //
@@ -241,22 +242,22 @@ public class MainActivity extends AppCompatActivity {
   private void displayInitialUI() {
     displayReconnectUI();
     neoVibrateButton.setOnClickListener(
-        new View.OnClickListener() {
-          public void onClick(View v) {
-            if (!vibrating) {
-              blessedNeo.pauseDeviceAlgorithm();
-              neoVibrateButton.setText("Stop Vibration Pattern");
-              vibrating = true;
-              // run the vibrating pattern loop
-              vibratingPatternThread = new Thread(vibratingPattern);
-              vibratingPatternThread.start();
-            } else {
-              neoVibrateButton.setText("Start Vibration Pattern");
-              vibrating = false;
-              blessedNeo.resumeDeviceAlgorithm();
-            }
-          }
-        });
+            new View.OnClickListener() {
+              public void onClick(View v) {
+                if (!vibrating) {
+                  blessedNeo.pauseDeviceAlgorithm();
+                  neoVibrateButton.setText("Stop Vibration Pattern");
+                  vibrating = true;
+                  // run the vibrating pattern loop
+                  vibratingPatternThread = new Thread(vibratingPattern);
+                  vibratingPatternThread.start();
+                } else {
+                  neoVibrateButton.setText("Start Vibration Pattern");
+                  vibrating = false;
+                  blessedNeo.resumeDeviceAlgorithm();
+                }
+              }
+            });
   }
 
   private void displayReconnectUI() {
@@ -265,15 +266,15 @@ public class MainActivity extends AppCompatActivity {
     neoVibrateButton.setVisibility(View.INVISIBLE);
     neoVibrateButton.setClickable(false);
     neoVibrateButton.setText(
-        "Start Vibration Pattern"); // Vibration stops on disconnect so reset the button text
+            "Start Vibration Pattern"); // Vibration stops on disconnect so reset the button text
     neoConnectButton.setText("Scan and Connect to Neosensory Buzz");
     neoConnectButton.setOnClickListener(
-        new View.OnClickListener() {
-          public void onClick(View v) {
-            blessedNeo.attemptNeoReconnect();
-            toastMessage("Attempting to reconnect. This may take a few seconds.");
-          }
-        });
+            new View.OnClickListener() {
+              public void onClick(View v) {
+                blessedNeo.attemptNeoReconnect();
+                toastMessage("Attempting to reconnect. This may take a few seconds.");
+              }
+            });
   }
 
   private void displayDisconnectUI() {
@@ -281,20 +282,20 @@ public class MainActivity extends AppCompatActivity {
     neoCliHeader.setVisibility(View.VISIBLE);
     neoConnectButton.setText("Disconnect");
     neoConnectButton.setOnClickListener(
-        new View.OnClickListener() {
-          public void onClick(View v) {
-            if (!vibrating) {
-              blessedNeo.disconnectNeoDevice();
-            } else {
-              // If motors are vibrating (in the VibratingPattern thread in this case) and we want
-              // to stop them on disconnect, we need to add a sleep/delay as it's possible for the
-              // disconnect to be processed prior to stopping the motors. See the VibratingPattern
-              // definition.
-              disconnectRequested = true;
-              vibrating = false;
-            }
-          }
-        });
+            new View.OnClickListener() {
+              public void onClick(View v) {
+                if (!vibrating) {
+                  blessedNeo.disconnectNeoDevice();
+                } else {
+                  // If motors are vibrating (in the VibratingPattern thread in this case) and we want
+                  // to stop them on disconnect, we need to add a sleep/delay as it's possible for the
+                  // disconnect to be processed prior to stopping the motors. See the VibratingPattern
+                  // definition.
+                  disconnectRequested = true;
+                  vibrating = false;
+                }
+              }
+            });
   }
 
   private void displayInitConnectButton() {
@@ -302,12 +303,12 @@ public class MainActivity extends AppCompatActivity {
     neoConnectButton.setClickable(true);
     neoConnectButton.setVisibility(View.VISIBLE);
     neoConnectButton.setOnClickListener(
-        new View.OnClickListener() {
-          public void onClick(View v) {
-            initBluetoothHandler();
-            neoVibe = new NeoVibe(blessedNeo);
-          }
-        });
+            new View.OnClickListener() {
+              public void onClick(View v) {
+                initBluetoothHandler();
+                neoVibe = new NeoVibe(blessedNeo);
+              }
+            });
   }
 
   public void displayVibrateButton() {
@@ -332,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     // NeosensoryBlessed.getInstance(getApplicationContext(), <address> e.g."EB:CA:85:38:19:1D",
     // false);
     blessedNeo =
-        NeosensoryBlessed.getInstance(getApplicationContext(), new String[] {"Buzz"}, false);
+            NeosensoryBlessed.getInstance(getApplicationContext(), new String[] {"Buzz"}, false);
     // register receivers so that NeosensoryBlessed can pass relevant messages and state changes to MainActivity
     registerReceiver(BlessedReceiver, new IntentFilter("BlessedBroadcast"));
   }
@@ -340,20 +341,20 @@ public class MainActivity extends AppCompatActivity {
   private boolean checkLocationPermissions() {
     int targetSdkVersion = getApplicationInfo().targetSdkVersion;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-        && targetSdkVersion >= Build.VERSION_CODES.Q) {
+            && targetSdkVersion >= Build.VERSION_CODES.Q) {
       if (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-          != PackageManager.PERMISSION_GRANTED) {
+              != PackageManager.PERMISSION_GRANTED) {
         requestPermissions(
-            new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST);
+                new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST);
         return false;
       } else {
         return true;
       }
     } else {
       if (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-          != PackageManager.PERMISSION_GRANTED) {
+              != PackageManager.PERMISSION_GRANTED) {
         requestPermissions(
-            new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, ACCESS_LOCATION_REQUEST);
+                new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, ACCESS_LOCATION_REQUEST);
         return false;
       } else {
         return true;
@@ -363,10 +364,10 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+          int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     if ((requestCode == ACCESS_LOCATION_REQUEST)
-        && (grantResults.length > 0)
-        && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            && (grantResults.length > 0)
+            && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
       displayInitConnectButton();
     } else {
       toastMessage("Unable to obtain location permissions, which are required to use Bluetooth.");

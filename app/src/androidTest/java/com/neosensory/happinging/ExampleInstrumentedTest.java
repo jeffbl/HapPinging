@@ -1,4 +1,4 @@
-package com.neosensory.neosensoryblessedexample;
+package com.neosensory.happinging;
 
 import android.content.Context;
 

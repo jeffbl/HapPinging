@@ -14,20 +14,23 @@ public class NeoVibe {
         blessedNeo = bn;
     }
 
-    public static int[] getVibes(int v0, int v1, int v2, int v3) {
+    public static int[] getVibeArray(int v0, int v1, int v2, int v3) {
         return new int[] {v0, v1, v2, v3,};
+    }
+
+    public boolean vibe(int v0, int v1, int v2, int v3) {
+        return vibe(getVibeArray(v0,v1,v2,v3));
     }
 
     public boolean vibe(int[] v){
         //assert(v != null);
         return blessedNeo.vibrateMotors(v);
     }
-    public boolean vibe(int v0, int v1, int v2, int v3) {
-        return vibe(new int[] {v0,v1,v2,v3});
-    }
+
     public boolean vibeAll(int intensity) {
         return vibe(intensity,intensity,intensity,intensity);
     }
+
     public boolean vibeOff() {
         return vibe(0,0,0,0);
     }
@@ -35,6 +38,7 @@ public class NeoVibe {
 
     //Does a psychometric sweep from one position to the other
     // TODO : this sleeps between sending motor commands, but does not factor in the time to execute each loop, so vibrations will be somewhat too long
+    // not using sleep may help: https://stackoverflow.com/questions/33335906/is-thread-sleepx-accurate-enough-to-use-as-a-clock-in-android
     public boolean sweep(float positionStart, float positionEnd, int intensity, int milliseconds) {
         if (positionStart<0.0 || positionStart>1.0 || positionEnd<0.0 || positionEnd>1.0) {
             Log.e(TAG, "Position out of range in sweep() - returning without vibing!");

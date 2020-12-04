@@ -18,6 +18,10 @@ import android.widget.Toast;
 
 import com.neosensory.neosensoryblessed.NeosensoryBlessed;
 
+import com.potterhsu.Pinger;
+
+import us.mulb.jeff.NeoVibe;
+
 public class MainActivity extends AppCompatActivity {
   // set string for filtering output for this activity in Logcat
   private final String TAG = MainActivity.class.getSimpleName();
@@ -34,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
   // Access the library to leverage the Neosensory API
   private NeosensoryBlessed blessedNeo = null;
+
+  private NeoVibe neoVibe = null;
 
   // Variable to track whether or not the wristband should be vibrating
   private static boolean vibrating = false;
@@ -60,7 +66,51 @@ public class MainActivity extends AppCompatActivity {
     // button in the callback onRequestPermissionsResult
 
     // Create the vibrating pattern thread (but don't start it yet)
-    vibratingPattern = new VibratingPattern();
+    vibratingPattern = new VibratingPatternPing();
+  }
+
+  // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
+  // the variable `vibrating` is False
+  class VibratingPatternPing implements Runnable {
+    private int minVibration = 40;
+    private int currentVibration = minVibration;
+    private Pinger pinger=new Pinger();
+
+
+    public void run() {
+      // loop until the thread is interrupted
+      int motorID = 0;
+
+      while (!Thread.currentThread().isInterrupted() && vibrating) {
+        try {
+          if(pinger.ping("8.8.8.8", 2) == false) {  //if ping succeeds before timeout
+            //neoVibe.sweepBounce(0.0F,1.0F,255,1000);
+            neoVibe.stuffBufferTest();
+          }
+          Thread.sleep(6*1000);
+        } catch (InterruptedException e) {
+          blessedNeo.stopMotors();
+          blessedNeo.resumeDeviceAlgorithm();
+          Log.i(TAG, "Interrupted thread");
+          e.printStackTrace();
+        }
+      }
+      if (disconnectRequested) {
+        Log.i(TAG, "Disconnect requested while thread active");
+        blessedNeo.stopMotors();
+        blessedNeo.resumeDeviceAlgorithm();
+        // When disconnecting: it is possible for the device to process the disconnection request
+        // prior to processing the request to resume the onboard algorithm, which causes the last
+        // sent motor command to "stick"
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        blessedNeo.disconnectNeoDevice();
+        disconnectRequested = false;
+      }
+    }
   }
 
   // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
@@ -107,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
       }
     }
   }
+
 
   //////////////////////////
   // Cleanup on shutdown //
@@ -254,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
         new View.OnClickListener() {
           public void onClick(View v) {
             initBluetoothHandler();
+            neoVibe = new NeoVibe(blessedNeo);
           }
         });
   }

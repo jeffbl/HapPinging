@@ -85,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
       while (!Thread.currentThread().isInterrupted() && vibrating) {
         try {
           if(pinger.ping("8.8.8.8", 2) == false) {  //if ping succeeds before timeout
-            neoVibe.sweepBounce(0.0F,1.0F,255,1000);
-            //neoVibe.stuffBufferTest();
+            neoVibe.sweepBounce(0.0F,1.0F,64,1000);
           }
           Thread.sleep(6*1000);
         } catch (InterruptedException e) {

@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.github.pwittchen.reactivewifi.ReactiveWifi;
+
 import com.poutinenerds.happinging.R;
 
 import androidx.appcompat.app.AppCompatActivity;

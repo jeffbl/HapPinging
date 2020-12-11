@@ -23,6 +23,8 @@ import com.potterhsu.Pinger;
 
 import us.mulb.jeff.NeoVibe;
 
+import static android.os.SystemClock.uptimeMillis;
+
 public class MainActivity extends AppCompatActivity {
   // set string for filtering output for this activity in Logcat
   private final String TAG = MainActivity.class.getSimpleName();
@@ -84,9 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
       while (!Thread.currentThread().isInterrupted() && vibrating) {
         try {
-          if(pinger.ping("8.8.8.8", 2) == true) {  //if ping succeeds before timeout
+          Log.d("Main", "Ping start " + uptimeMillis());
+          boolean pingRet = pinger.ping("8.8.8.8", 2);
+          Log.d("Main", "Ping done  " + uptimeMillis());
+          if(pingRet == true) {  //if ping succeeds before timeout
             neoVibe.sweepBounce(0.0F,1.0F,255,1000);
-            //neoVibe.stuffBufferTest();
           }
           Thread.sleep(6*1000);
         } catch (InterruptedException e) {

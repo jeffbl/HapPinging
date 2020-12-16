@@ -14,6 +14,17 @@ public class NeoVibe {
         blessedNeo = bn;
     }
 
+    private boolean sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    //Takes individual ints and creates the array that the Neosensory API wants
     public static int[] getVibeArray(int v0, int v1, int v2, int v3) {
         return new int[] {v0, v1, v2, v3,};
     }
@@ -24,6 +35,7 @@ public class NeoVibe {
 
     public boolean vibe(int[] v){
         //assert(v != null);
+        Log.d(TAG,"New Amplitudes: " + v[0] + " " + v[1] + " " + v[2] + " " + v[3]);
         return blessedNeo.vibrateMotors(v);
     }
 
@@ -31,13 +43,18 @@ public class NeoVibe {
         return vibe(intensity,intensity,intensity,intensity);
     }
 
+    public boolean vibeSingleActuator(int actuatorNumber, int intensity) {
+        return vibe(actuatorNumber==0?intensity:0, actuatorNumber==1?intensity:0, actuatorNumber==2?intensity:0, actuatorNumber==3?intensity:0);
+    }
+
     public boolean vibeOff() {
         return vibe(0,0,0,0);
     }
 
 
-    //Does a psychometric sweep from one position to the other
-    // TODO : this sleeps between sending motor commands, but does not factor in the time to execute each loop, so vibrations will be somewhat too long
+    //Does a psychometric sweep from one position to the other, using the Neosensory psychometric API
+    // TODO :   this sleeps between sending motor commands, but does not factor in the time to execute each loop, so vibrations will be somewhat too long.
+    //          extra time looks like around 3ms on a Pixel 3a
     // not using sleep may help: https://stackoverflow.com/questions/33335906/is-thread-sleepx-accurate-enough-to-use-as-a-clock-in-android
     public boolean sweep(float positionStart, float positionEnd, int intensity, int milliseconds) {
         if (positionStart<0.0 || positionStart>1.0 || positionEnd<0.0 || positionEnd>1.0) {
@@ -45,8 +62,8 @@ public class NeoVibe {
             return false;
         }
 
-        int steps = milliseconds/MIN_MS_BETWEEN_COMMANDS;
-        float positionIncrement = (positionEnd-positionStart)/steps;
+        int steps = (milliseconds/MIN_MS_BETWEEN_COMMANDS);
+        float positionIncrement = (positionEnd-positionStart)/(steps-1);  //steps-1 since need to get all the way to end of the range
         float curPosition = positionStart;
         for(int i=0; i<steps; i++) {
             vibe(NeoBuzzPsychophysics.GetIllusionActivations(intensity, curPosition));
@@ -56,23 +73,53 @@ public class NeoVibe {
         return vibeOff();
     }
 
+    // The bounce plays the furthest (midpoint of time) location for double the time of the other positions
     public boolean sweepBounce(float positionStart, float positionEnd, int intensity, int milliseconds) {
         sweep(positionStart, positionEnd, intensity, milliseconds/2);
         return sweep(positionEnd, positionStart, intensity, milliseconds/2);
     }
 
 
-    ////////////////////// DEPRECATED TEST CODE /////////////////////////
 
-    private boolean sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
+    //just vibe actuators individually, not trying for psychometric sweep
+    public boolean sweepDiscrete(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
+        boolean ret=false;
+        int vibeMS = milliseconds / Math.abs(actuatorEnd-actuatorStart)+1;
+
+        if(vibeMS<MIN_MS_BETWEEN_COMMANDS) {
+            Log.w(TAG, "vibeMS may be too low to maintain correct timing...");
         }
-        return true;
+
+
+        int actuatorStep = (int)Math.signum(actuatorEnd-actuatorStart);
+        for(int i=actuatorStart; i<=actuatorEnd; i+=actuatorStep){
+            vibeSingleActuator(i, intensity);
+            sleep(vibeMS);
+        }
+        vibeOff();
+        return ret;
     }
+
+    public boolean randomVibes(int msAtEachPosition, int intensity, int milliseconds) {
+        boolean ret=false;
+
+        if(msAtEachPosition<MIN_MS_BETWEEN_COMMANDS) {
+            Log.w(TAG, "msAtEachPosition may be too low to maintain correct timing...");
+        }
+
+        for (int i=0; i<milliseconds; i+=msAtEachPosition) {
+            ret=vibe((int)(Math.round(255*Math.random())), (int)(Math.round(255*Math.random())), (int)(Math.round(255*Math.random())), (int)(Math.round(255*Math.random())));
+            sleep(msAtEachPosition);
+        }
+        vibeOff();
+        return ret;
+    }
+
+
+
+
+
+    ////////////////////// DEPRECATED TEST CODE /////////////////////////
 
     //This does not work at all
     public boolean stuffBufferTest() {

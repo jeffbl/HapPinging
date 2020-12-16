@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.poutinenerds.happinging.R;
 import com.neosensory.neosensoryblessed.NeosensoryBlessed;
 
 import com.potterhsu.Pinger;
@@ -75,10 +74,7 @@ public class MainActivity extends AppCompatActivity {
   // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
   // the variable `vibrating` is False
   class VibratingPatternPing implements Runnable {
-    private int minVibration = 40;
-    private int currentVibration = minVibration;
     private Pinger pinger=new Pinger();
-
 
     public void run() {
       // loop until the thread is interrupted
@@ -86,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
       while (!Thread.currentThread().isInterrupted() && vibrating) {
         try {
-          Log.d("Main", "Ping start " + uptimeMillis());
+          long uptimeStart = uptimeMillis();
           boolean pingRet = pinger.ping("8.8.8.8", 2);
-          Log.d("Main", "Ping done  " + uptimeMillis());
+          Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis()-uptimeStart));
           if(pingRet == true) {  //if ping succeeds before timeout
             neoVibe.sweepBounce(0.0F,1.0F,255,1000);
           }

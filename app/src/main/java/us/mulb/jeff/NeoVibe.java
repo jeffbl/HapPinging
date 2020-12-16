@@ -1,17 +1,25 @@
 package us.mulb.jeff;
 
+import android.os.VibrationEffect;
 import android.util.Log;
 import com.neosensory.neosensoryblessed.NeosensoryBlessed;
 import com.neosensory.neosensoryblessed.NeoBuzzPsychophysics;
+import android.os.Vibrator;
+
+import static android.content.Context.VIBRATOR_SERVICE;
 
 public class NeoVibe {
     private NeosensoryBlessed blessedNeo=null;
 
     private final String TAG = this.getClass().getSimpleName();
     private final int MIN_MS_BETWEEN_COMMANDS = 100;
+    private Vibrator vibrator;
 
-    public NeoVibe(NeosensoryBlessed bn) {
+    private final boolean VIBE_PHONE=true;  //TODO: could be a checkbox in the UI
+
+    public NeoVibe(NeosensoryBlessed bn, Vibrator v) {
         setBlessedNeo(bn);
+        vibrator = v;
     }
 
     public void setBlessedNeo(NeosensoryBlessed bn) {
@@ -38,18 +46,24 @@ public class NeoVibe {
     }
 
     public boolean vibe(int[] v){
-        boolean ret = false;
         //assert(v != null);
+
         Log.d(TAG,"New Amplitudes: " + v[0] + " " + v[1] + " " + v[2] + " " + v[3]);
 
         if(blessedNeo != null) {
-            ret = blessedNeo.vibrateMotors(v);
-        }
-        else {
-            ret = false;
+            return(blessedNeo.vibrateMotors(v));
         }
 
-        return ret;
+        if(VIBE_PHONE){
+            vibrator.cancel(); //get ready for new command by terminating previous vibration.
+
+            if(v[0]!=0 || v[1]!=0 || v[2]!=0 || v[3]!=0) {
+                int intensity = (v[0] + v[1] + v[2] + v[3]) / 4;  //set intensity to average of individual intensities...
+                vibrator.vibrate(VibrationEffect.createOneShot(5000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
+            }
+        }
+
+        return true;
     }
 
     public boolean vibeAll(int intensity) {
@@ -95,7 +109,7 @@ public class NeoVibe {
 
 
     //just vibe actuators individually, not trying for psychometric sweep
-    public boolean sweepDiscrete(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
+    public boolean sweepDiscreteNOTFINISHED(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
         boolean ret=false;
         int vibeMS = milliseconds / Math.abs(actuatorEnd-actuatorStart)+1;
 
@@ -112,6 +126,7 @@ public class NeoVibe {
         vibeOff();
         return ret;
     }
+
 
     public boolean randomVibes(int msAtEachPosition, int intensity, int milliseconds) {
         boolean ret=false;

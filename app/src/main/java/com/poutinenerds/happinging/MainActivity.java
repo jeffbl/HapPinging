@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import androidx.annotation.NonNull;
+
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     // Create the vibrating pattern thread (but don't start it yet)
     vibratingPattern = new VibratingPatternPing();
 
-    neoVibe = new NeoVibe(null);
+    neoVibe = new NeoVibe(null, (Vibrator) getSystemService(VIBRATOR_SERVICE));
   }
 
   // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
           Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis()-uptimeStart));
           if(pingRet == true) {  //if ping succeeds before timeout
             neoVibe.sweepBounce(0.0F,1.0F,255,1000);
+            //neoVibe.randomVibes(500, 255, 2000);
           }
           Thread.sleep(6*1000);
         } catch (InterruptedException e) {

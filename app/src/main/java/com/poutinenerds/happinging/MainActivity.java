@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Create the vibrating pattern thread (but don't start it yet)
     vibratingPattern = new VibratingPatternPing();
+
+    neoVibe = new NeoVibe(null);
   }
 
   // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
@@ -90,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
           }
           Thread.sleep(6*1000);
         } catch (InterruptedException e) {
-          blessedNeo.stopMotors();
-          blessedNeo.resumeDeviceAlgorithm();
+          if(blessedNeo!=null) blessedNeo.stopMotors();
+          if(blessedNeo!=null) blessedNeo.resumeDeviceAlgorithm();
           Log.i(TAG, "Interrupted thread");
           e.printStackTrace();
         }
@@ -114,50 +116,6 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
-  // the variable `vibrating` is False
-  class VibratingPattern implements Runnable {
-    private int minVibration = 40;
-    private int currentVibration = minVibration;
-
-    public void run() {
-      // loop until the thread is interrupted
-      int motorID = 0;
-      while (!Thread.currentThread().isInterrupted() && vibrating) {
-        try {
-          Thread.sleep(150);
-          int[] motorPattern = new int[4];
-          motorPattern[motorID] = currentVibration;
-          blessedNeo.vibrateMotors(motorPattern);
-          motorID = (motorID + 1) % NUM_MOTORS;
-          currentVibration = (currentVibration + 1) % NeosensoryBlessed.MAX_VIBRATION_AMP;
-          if (currentVibration == 0) {
-            currentVibration = minVibration;
-          }
-        } catch (InterruptedException e) {
-          blessedNeo.stopMotors();
-          blessedNeo.resumeDeviceAlgorithm();
-          Log.i(TAG, "Interrupted thread");
-          e.printStackTrace();
-        }
-      }
-      if (disconnectRequested) {
-        Log.i(TAG, "Disconnect requested while thread active");
-        blessedNeo.stopMotors();
-        blessedNeo.resumeDeviceAlgorithm();
-        // When disconnecting: it is possible for the device to process the disconnection request
-        // prior to processing the request to resume the onboard algorithm, which causes the last
-        // sent motor command to "stick"
-        try {
-          Thread.sleep(200);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        blessedNeo.disconnectNeoDevice();
-        disconnectRequested = false;
-      }
-    }
-  }
 
 
   //////////////////////////
@@ -173,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
       disconnectRequested = true;
     }
     blessedNeo = null;
+    neoVibe.setBlessedNeo(blessedNeo);
     vibratingPatternThread = null;
   }
 
@@ -245,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             new View.OnClickListener() {
               public void onClick(View v) {
                 if (!vibrating) {
-                  blessedNeo.pauseDeviceAlgorithm();
+                  if(blessedNeo != null) blessedNeo.pauseDeviceAlgorithm();
                   neoVibrateButton.setText("Stop Vibration Pattern");
                   vibrating = true;
                   // run the vibrating pattern loop
@@ -254,16 +213,16 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                   neoVibrateButton.setText("Start Vibration Pattern");
                   vibrating = false;
-                  blessedNeo.resumeDeviceAlgorithm();
+                  if(blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
                 }
               }
             });
   }
 
   private void displayReconnectUI() {
-    neoCliOutput.setVisibility(View.INVISIBLE);
-    neoCliHeader.setVisibility(View.INVISIBLE);
-    neoVibrateButton.setVisibility(View.INVISIBLE);
+    //neoCliOutput.setVisibility(View.INVISIBLE);
+    //neoCliHeader.setVisibility(View.INVISIBLE);
+    //neoVibrateButton.setVisibility(View.INVISIBLE);
     neoVibrateButton.setClickable(false);
     neoVibrateButton.setText(
             "Start Vibration Pattern"); // Vibration stops on disconnect so reset the button text
@@ -305,8 +264,11 @@ public class MainActivity extends AppCompatActivity {
     neoConnectButton.setOnClickListener(
             new View.OnClickListener() {
               public void onClick(View v) {
+                if(vibrating) {  //don't allow connecting to band if vibing already started TODO: just grey out button rather than ignore it...
+                  Log.w(TAG, "Preventing buzz connection because vibration is already running, and this causes weirdness.");
+                  return;
+                }
                 initBluetoothHandler();
-                neoVibe = new NeoVibe(blessedNeo);
               }
             });
   }
@@ -334,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
     // false);
     blessedNeo =
             NeosensoryBlessed.getInstance(getApplicationContext(), new String[] {"Buzz"}, false);
+    neoVibe.setBlessedNeo(blessedNeo);
     // register receivers so that NeosensoryBlessed can pass relevant messages and state changes to MainActivity
     registerReceiver(BlessedReceiver, new IntentFilter("BlessedBroadcast"));
   }

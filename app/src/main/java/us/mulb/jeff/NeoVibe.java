@@ -11,7 +11,11 @@ public class NeoVibe {
     private final int MIN_MS_BETWEEN_COMMANDS = 100;
 
     public NeoVibe(NeosensoryBlessed bn) {
-        blessedNeo = bn;
+        setBlessedNeo(bn);
+    }
+
+    public void setBlessedNeo(NeosensoryBlessed bn) {
+        blessedNeo=bn;
     }
 
     private boolean sleep(int millis) {
@@ -34,9 +38,18 @@ public class NeoVibe {
     }
 
     public boolean vibe(int[] v){
+        boolean ret = false;
         //assert(v != null);
         Log.d(TAG,"New Amplitudes: " + v[0] + " " + v[1] + " " + v[2] + " " + v[3]);
-        return blessedNeo.vibrateMotors(v);
+
+        if(blessedNeo != null) {
+            ret = blessedNeo.vibrateMotors(v);
+        }
+        else {
+            ret = false;
+        }
+
+        return ret;
     }
 
     public boolean vibeAll(int intensity) {

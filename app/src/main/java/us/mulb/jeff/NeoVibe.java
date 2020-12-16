@@ -55,11 +55,19 @@ public class NeoVibe {
         }
 
         if(VIBE_PHONE){
-            vibrator.cancel(); //get ready for new command by terminating previous vibration.
+            if(vibrator.hasVibrator()) {
+                vibrator.cancel(); //get ready for new command by terminating previous vibration.
 
-            if(v[0]!=0 || v[1]!=0 || v[2]!=0 || v[3]!=0) {
                 int intensity = (v[0] + v[1] + v[2] + v[3]) / 4;  //set intensity to average of individual intensities...
-                vibrator.vibrate(VibrationEffect.createOneShot(5000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
+                if (intensity > 0) {
+                    if(vibrator.hasAmplitudeControl()) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(5000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
+                    }
+                    else {
+                        //TODO: implement something for phones without amplitude control...
+                        vibrator.vibrate(VibrationEffect.createOneShot(5000, VibrationEffect.DEFAULT_AMPLITUDE));
+                    }
+                }
             }
         }
 
@@ -109,23 +117,29 @@ public class NeoVibe {
 
 
     //just vibe actuators individually, not trying for psychometric sweep
-    public boolean sweepDiscreteNOTFINISHED(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
+    public boolean sweepDiscrete(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
         boolean ret=false;
-        int vibeMS = milliseconds / Math.abs(actuatorEnd-actuatorStart)+1;
+        int vibeMS = milliseconds / (Math.abs(actuatorEnd-actuatorStart)+1);
 
         if(vibeMS<MIN_MS_BETWEEN_COMMANDS) {
             Log.w(TAG, "vibeMS may be too low to maintain correct timing...");
         }
 
-
         int actuatorStep = (int)Math.signum(actuatorEnd-actuatorStart);
-        for(int i=actuatorStart; i<=actuatorEnd; i+=actuatorStep){
-            vibeSingleActuator(i, intensity);
+        for(int i=actuatorStart; i!=actuatorEnd+actuatorStep; i+=actuatorStep){
+            ret = vibeSingleActuator(i, intensity);
             sleep(vibeMS);
         }
         vibeOff();
         return ret;
     }
+
+    public boolean sweepDiscreteBounce(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
+        sweepDiscrete(actuatorStart, actuatorEnd, intensity, milliseconds/2);
+        sweepDiscrete(actuatorEnd, actuatorStart, intensity, milliseconds/2);
+        return false;
+    }
+
 
 
     public boolean randomVibes(int msAtEachPosition, int intensity, int milliseconds) {

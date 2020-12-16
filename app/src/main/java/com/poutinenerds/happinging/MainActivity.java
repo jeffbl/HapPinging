@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
           Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis()-uptimeStart));
           if(pingRet == true) {  //if ping succeeds before timeout
             neoVibe.sweepBounce(0.0F,1.0F,255,1000);
+            //neoVibe.sweepDiscreteBounce(1,2,255,3000);
             //neoVibe.randomVibes(500, 255, 2000);
           }
           Thread.sleep(6*1000);

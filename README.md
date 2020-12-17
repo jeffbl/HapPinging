@@ -1,6 +1,10 @@
 # HapPinging
 An Android app that lets you feel the stability of your network connection on a Neosensory Buzz haptic wristband.
 
+## Updates
+
+SweepDiscrete and SweepBounceDiscrete implemented 
+
 Full integration between NetworkMonitoring and Jeff's initial implementation
 
 Network information is updated automatically and available through the main activity attributes.

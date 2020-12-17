@@ -6,15 +6,16 @@
     android:layout_height="match_parent"
     tools:context="com.poutinenerds.happinging.MainActivity">
 
+
     <TextView
         android:id="@+id/cli_response"
-        android:layout_width="322dp"
-        android:layout_height="252dp"
-        android:layout_marginTop="50dp"
+        android:layout_width="317dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="24dp"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.561"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cli_header" />
 
@@ -22,11 +23,11 @@
         android:id="@+id/cli_header"
         android:layout_width="324dp"
         android:layout_height="20dp"
-        android:layout_marginTop="62dp"
+        android:layout_marginTop="212dp"
         android:text="Neosensory Command Line Interface Output"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.183"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,5 +52,190 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cli_response" />
+
+    <TextView
+        android:id="@+id/WifiSignal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wi-fi signal (0-100):"
+        app:layout_constraintBottom_toTopOf="@id/bandwidth"
+        app:layout_constraintRight_toLeftOf="@id/resultWifiSignal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pattern_button" />
+
+    <TextView
+        android:id="@+id/resultWifiSignal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="_"
+        app:layout_constraintBottom_toTopOf="@id/resultBandwidth"
+        app:layout_constraintLeft_toRightOf="@id/WifiSignal"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pattern_button" />
+
+    <TextView
+        android:id="@+id/bandwidth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bandwidth (mb/s): "
+        app:layout_constraintBottom_toTopOf="@id/internet"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/resultBandwidth"
+        app:layout_constraintTop_toBottomOf="@id/WifiSignal" />
+
+    <TextView
+        android:id="@+id/resultBandwidth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="_"
+        app:layout_constraintBottom_toTopOf="@id/resultInternet"
+        app:layout_constraintLeft_toRightOf="@id/bandwidth"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/resultWifiSignal" />
+
+    <TextView
+        android:id="@+id/internet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Internet Connectivity: "
+        app:layout_constraintBottom_toTopOf="@id/networkConnectivity"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/resultInternet"
+        app:layout_constraintTop_toBottomOf="@id/bandwidth" />
+
+    <TextView
+        android:id="@+id/resultInternet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="_"
+        app:layout_constraintBottom_toTopOf="@id/resultNetwork"
+        app:layout_constraintLeft_toRightOf="@id/bandwidth"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/resultBandwidth" />
+
+    <TextView
+        android:id="@+id/networkConnectivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Network Connectivity: "
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/resultNetwork"
+        app:layout_constraintTop_toBottomOf="@id/internet" />
+
+    <TextView
+        android:id="@+id/resultNetwork"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="_"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/networkConnectivity"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/resultInternet" />
+
+    <Switch
+        android:id="@+id/switchSimulate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Simulate Network"
+        app:layout_constraintBottom_toTopOf="@+id/cli_header"
+
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <SeekBar
+        android:id="@+id/seekBar_bandwidth"
+        android:layout_width="158dp"
+        android:layout_height="23dp"
+        android:max="100"
+        android:min="0"
+        app:layout_constraintBottom_toTopOf="@id/seekBar_wifi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textViewBandwidth"
+        app:layout_constraintTop_toBottomOf="@id/switchSimulate" />
+
+    <SeekBar
+        android:id="@+id/seekBar_wifi"
+        android:layout_width="158dp"
+        android:layout_height="23dp"
+        android:max="100"
+        android:min="0"
+        app:layout_constraintBottom_toTopOf="@id/switchNetworkOK"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textViewWifiStrength"
+        app:layout_constraintTop_toBottomOf="@id/seekBar_bandwidth" />
+
+    <Switch
+        android:id="@+id/switchNetworkOK"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/seekBar_wifi"
+        app:layout_constraintStart_toEndOf="@id/textViewNetworkOK"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/switchIspOk"
+
+
+        />
+
+    <Switch
+        android:id="@+id/switchIspOk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/switchNetworkOK"
+        app:layout_constraintStart_toEndOf="@id/textViewIspOk"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cli_header"
+
+
+        />
+
+    <TextView
+        android:id="@+id/textViewBandwidth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bandwidth"
+        app:layout_constraintTop_toBottomOf="@id/switchSimulate"
+        app:layout_constraintBottom_toTopOf="@id/textViewWifiStrength"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/seekBar_bandwidth"
+        />
+
+
+    <TextView
+        android:id="@+id/textViewWifiStrength"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wifi Strength"
+        app:layout_constraintTop_toBottomOf="@id/textViewBandwidth"
+        app:layout_constraintBottom_toTopOf="@id/textViewNetworkOK"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/seekBar_wifi"
+         />
+
+    <TextView
+        android:id="@+id/textViewNetworkOK"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Local Router OK"
+        app:layout_constraintTop_toBottomOf="@id/textViewWifiStrength"
+        app:layout_constraintBottom_toTopOf="@id/textViewIspOk"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/switchNetworkOK"
+        />
+
+    <TextView
+        android:id="@+id/textViewIspOk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ISP OK"
+        app:layout_constraintTop_toBottomOf="@id/textViewNetworkOK"
+        app:layout_constraintBottom_toTopOf="@id/cli_header"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/switchIspOk"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

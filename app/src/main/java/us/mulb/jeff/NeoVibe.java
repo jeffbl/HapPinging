@@ -101,6 +101,11 @@ public class NeoVibe {
         float positionIncrement = (positionEnd-positionStart)/(steps-1);  //steps-1 since need to get all the way to end of the range
         float curPosition = positionStart;
         for(int i=0; i<steps; i++) {
+            //Hack fix for rounding errors that move the curPosition just outside of valid range:
+            //assert(curPosition>=0.0 && curPosition<=1.0); // may go outside due to rounding error or something?
+            if(curPosition>1.0) curPosition=1.0F;
+            if(curPosition<0.0) curPosition=0.0F;
+
             vibe(NeoBuzzPsychophysics.GetIllusionActivations(intensity, curPosition));
             sleep(MIN_MS_BETWEEN_COMMANDS);
             curPosition += positionIncrement;

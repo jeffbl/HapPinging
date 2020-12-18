@@ -90,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
           boolean pingRet = pinger.ping("8.8.8.8", 2);
           Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis()-uptimeStart));
           if(pingRet == true) {  //if ping succeeds before timeout
-            neoVibe.sweepBounce(0.0F,1.0F,255,1000);
+            //neoVibe.sweepBounce(0.0F,1.0F,255,1000);
+            neoVibe.sweepBounce(0.0F, 1.0F, 114, 468);
             //neoVibe.sweepDiscreteBounce(1,2,255,3000);
             //neoVibe.randomVibes(500, 255, 2000);
           }

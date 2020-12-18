@@ -14,7 +14,7 @@ public class NeoVibe {
     private NeosensoryBlessed blessedNeo = null;
 
     private final String TAG = this.getClass().getSimpleName();
-    private final int MIN_MS_BETWEEN_COMMANDS = 100;
+    private final int MIN_MS_BETWEEN_COMMANDS = 100; //100
     private Vibrator vibrator;
 
     private final boolean VIBE_PHONE = true;  //TODO: could be a checkbox in the UI
@@ -47,21 +47,29 @@ public class NeoVibe {
         return vibe(getVibeArray(v0, v1, v2, v3));
     }
 
-    public boolean vibe(int[] v) {
+    public boolean vibe(int[] v){
         //assert(v != null);
 
-        Log.d(TAG, "New Amplitudes: " + v[0] + " " + v[1] + " " + v[2] + " " + v[3]);
+        Log.d(TAG,"New Amplitudes: " + v[0] + " " + v[1] + " " + v[2] + " " + v[3]);
 
-        if (blessedNeo != null) {
-            return (blessedNeo.vibrateMotors(v));
+        if(blessedNeo != null) {
+            return(blessedNeo.vibrateMotors(v));
         }
 
-        if (VIBE_PHONE) {
-            vibrator.cancel(); //get ready for new command by terminating previous vibration.
+        if(VIBE_PHONE){
+            if(vibrator.hasVibrator()) {
+                vibrator.cancel(); //get ready for new command by terminating previous vibration.
 
-            if (v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 0) {
                 int intensity = (v[0] + v[1] + v[2] + v[3]) / 4;  //set intensity to average of individual intensities...
-                vibrator.vibrate(VibrationEffect.createOneShot(5000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
+                if (intensity > 0) {
+                    if(vibrator.hasAmplitudeControl()) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(5000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
+                    }
+                    else {
+                        //TODO: implement something for phones without amplitude control...
+                        vibrator.vibrate(VibrationEffect.createOneShot(5000, VibrationEffect.DEFAULT_AMPLITUDE));
+                    }
+                }
             }
         }
 
@@ -85,16 +93,24 @@ public class NeoVibe {
     // TODO :   this sleeps between sending motor commands, but does not factor in the time to execute each loop, so vibrations will be somewhat too long.
     //          extra time looks like around 3ms on a Pixel 3a
     // not using sleep may help: https://stackoverflow.com/questions/33335906/is-thread-sleepx-accurate-enough-to-use-as-a-clock-in-android
-    public boolean sweep(float positionStart, float positionEnd, int intensity, int milliseconds) {
+    public boolean sweep(float positionStart, float positionEnd, float intensity, int milliseconds) {
         if (positionStart < 0.0 || positionStart > 1.0 || positionEnd < 0.0 || positionEnd > 1.0) {
             Log.e(TAG, "Position out of range in sweep() - returning without vibing!");
             return false;
         }
 
+        Log.d(TAG, "MILLLISECONDS = " + milliseconds);
+        Log.d(TAG, "INTENSITY = " + intensity);
+
         int steps = (milliseconds / MIN_MS_BETWEEN_COMMANDS);
         float positionIncrement = (positionEnd - positionStart) / (steps - 1);  //steps-1 since need to get all the way to end of the range
         float curPosition = positionStart;
         for (int i = 0; i < steps; i++) {
+            //Hack fix for rounding errors that move the curPosition just outside of valid range:
+            //assert(curPosition>=0.0 && curPosition<=1.0); // may go outside due to rounding error or something?
+            if(curPosition>1.0) curPosition=1.0F;
+            if(curPosition<0.0) curPosition=0.0F;
+
             vibe(NeoBuzzPsychophysics.GetIllusionActivations(intensity, curPosition));
             sleep(MIN_MS_BETWEEN_COMMANDS);
             curPosition += positionIncrement;
@@ -103,7 +119,7 @@ public class NeoVibe {
     }
 
     // The bounce plays the furthest (midpoint of time) location for double the time of the other positions
-    public boolean sweepBounce(float positionStart, float positionEnd, int intensity, int milliseconds) {
+    public boolean sweepBounce(float positionStart, float positionEnd, float intensity, int milliseconds) {
         sweep(positionStart, positionEnd, intensity, milliseconds / 2);
         return sweep(positionEnd, positionStart, intensity, milliseconds / 2);
     }
@@ -179,6 +195,34 @@ public class NeoVibe {
             }
         }
         return vibeOff();
+    }
+
+    //////////////
+    // Jeff's implementation of sweepDiscrete and sweepDiscreteBounce
+    ////////////
+
+    //just vibe actuators individually, not trying for psychometric sweep
+    public boolean sweepDiscrete(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
+        boolean ret=false;
+        int vibeMS = milliseconds / (Math.abs(actuatorEnd-actuatorStart)+1);
+
+        if(vibeMS<MIN_MS_BETWEEN_COMMANDS) {
+            Log.w(TAG, "vibeMS may be too low to maintain correct timing...");
+        }
+
+        int actuatorStep = (int)Math.signum(actuatorEnd-actuatorStart);
+        for(int i=actuatorStart; i!=actuatorEnd+actuatorStep; i+=actuatorStep){
+            ret = vibeSingleActuator(i, intensity);
+            sleep(vibeMS);
+        }
+        vibeOff();
+        return ret;
+    }
+
+    public boolean sweepDiscreteBounce(int actuatorStart, int actuatorEnd, int intensity, int milliseconds) {
+        sweepDiscrete(actuatorStart, actuatorEnd, intensity, milliseconds/2);
+        sweepDiscrete(actuatorEnd, actuatorStart, intensity, milliseconds/2);
+        return false;
     }
 
 

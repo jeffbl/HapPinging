@@ -26,7 +26,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.github.pwittchen.reactivewifi.ReactiveWifi;
 import com.neosensory.neosensoryblessed.NeosensoryBlessed;
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     //Needed to receive the async task SpeedTestTask response
     private Activity mActivity;
 
-    // Constants
+    // Constants`
     private static final int ACCESS_LOCATION_REQUEST = 2;
 
     // Access the library to leverage the Neosensory API
@@ -146,20 +145,39 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
     // Add the implementation of new mappings here
 
+    enum SweepType {DISCRETE, PSYCHOMETRIC};
+
     class VibratingPatternMauricio implements Runnable {
         final String TAG = VibratingPatternMauricio.class.getSimpleName();
-        final int PRESENTATION_PERIOD = 3 * 1000;
-        final int DURATION_VIB = 5;
+
+        ////////////////
+        // SETTINGS
+        /////////////////
+
+        // Choose one type
+      //  final SweepType sweepType = SweepType.DISCRETE;
+        final SweepType sweepType = SweepType.PSYCHOMETRIC;
+
+        final int PRESENTATION_PERIOD = 6 * 1000;
+
+        final int MAX_INTENSITY = 150; // User's preference
+        final int MIN_INTENSITY = 30; // User's preference
 
         final int LOWEST_WIFI_STRENGTH = 10; // this maps to intensity = MAX_INTENSITY
         final int HIGHEST_WIFI_STRENGTH = 100; // this maps to intensity = MIN_INTENSITY
-        final int MAX_INTENSITY = 150; // User preference
-        final int MIN_INTENSITY = 15; // User preference
+        final int LOWEST_BANDWIDTH = 2; // this maps to pause = MAX_PAUSE in the discrete sweep, and to SLOWEST_SWIPE in the psychometric sweep
+        final int HIGHEST_BANDWIDTH = 50; // this maps to pause = 0 ms in the discrete sweep, and to FASTEST_SWIPE in the psychometric sweep
 
-        final int LOWEST_BANDWIDTH = 2; // this maps to pause = MAX_PAUSE
-        final int HIGHEST_BANDWIDTH = 50; // this maps to pause = 0 ms
+        // Used in the discrete sweep
         final int MAX_PAUSE = 400;
         // MIN_PAUSE is 0
+        final int DURATION_VIB = 100; // has to be >= than NeoVibe.MIN_MS_BETWEEN_COMMANDS
+
+        // Used in the psychometric sweepes
+        final int SLOWEST_SWIPE = 4000;
+        final int FASTEST_SWIPE = 800;
+
+        ////////////////////
 
         private int convertBandwidthToPause(int bandwidth) {
             int pauseRepresentingBandwidth = MAX_PAUSE - MAX_PAUSE * (bandwidth - LOWEST_BANDWIDTH) / (HIGHEST_BANDWIDTH - LOWEST_BANDWIDTH);
@@ -169,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             } else if (pauseRepresentingBandwidth > MAX_PAUSE) {
                 pauseRepresentingBandwidth = MAX_PAUSE;
             }
-
             Log.d(TAG, " Conversion bandwith to pause between vibrations:  " + bandwidth + "mbps -> " + String.valueOf(pauseRepresentingBandwidth) + " ms");
 
             return pauseRepresentingBandwidth;
@@ -230,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                     // Mauricio's Mapping Logic
                     /////////////
 
+                    int intensity = convertWifiToIntensity(renderedWifiStrength);
+
                     if (!renderedLocalRouterWorking) {
                         neoVibe.sweepDiscrete(0, 0, MAX_INTENSITY, DURATION_VIB, false, 0);
                     } else if (!renderedIspWorking) {
@@ -238,8 +257,16 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                     // No major problem. Now render wifi strength and bandwidth
                     else {
                         int pause = convertBandwidthToPause(renderedBandwidth);
-                        int intensity = convertWifiToIntensity(renderedWifiStrength);
-                        neoVibe.sweepBounceDiscrete(0, 3, intensity, DURATION_VIB, false, pause);
+                        // Two options for sweeping
+                        switch (sweepType){
+                            case DISCRETE:
+                                neoVibe.sweepBounceDiscrete(0, 3, intensity, DURATION_VIB, false, pause);
+                                break;
+                            case PSYCHOMETRIC:
+                                int sweepDuration =  FASTEST_SWIPE + pause *(SLOWEST_SWIPE - FASTEST_SWIPE)/MAX_PAUSE; // converts  pause used in discrete to duration
+                                neoVibe.sweepBounce(0.0F, 1.0F, (float)intensity/255, sweepDuration);
+                                break;
+                        }
                     }
 
                     Thread.sleep(PRESENTATION_PERIOD);
@@ -659,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(connectivity -> {
                     //Callback
-                    if (connectivity.state().toString() == NetworkInfo.State.CONNECTED.toString()) {
+                    if (connectivity.state().toString().equals(NetworkInfo.State.CONNECTED.toString())) {
                         localRouterWorking = true;
                     } else {
                         localRouterWorking = false;

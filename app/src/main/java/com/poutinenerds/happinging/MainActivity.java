@@ -136,7 +136,6 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         // ADD OTHER MAPPINGS HERE
         // .
         // .
-
     }
 
     ////////////////////////////////////////

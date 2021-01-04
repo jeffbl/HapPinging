@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name = "vibpattern">
+        <item> JB-Ping </item>
+        <item> MFV </item>
+        <item> YJ-Simple </item>
+        <item> YJ-Dynamic </item>
+
+    </string-array>
+
+</resources>

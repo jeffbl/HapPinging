@@ -17,14 +17,17 @@ import com.welie.blessed.BluetoothCentral;
 import com.welie.blessed.BluetoothCentralCallback;
 import com.welie.blessed.BluetoothPeripheral;
 import com.welie.blessed.BluetoothPeripheralCallback;
+import com.welie.blessed.WriteType;
+
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
-import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT;
 import static com.welie.blessed.BluetoothBytesParser.bytes2String;
-import static com.welie.blessed.BluetoothPeripheral.GATT_SUCCESS;
+//import static com.welie.blessed.BluetoothPeripheral.GATT_SUCCESS;
+
+import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
 
 public class NeosensoryBlessed {
 
@@ -97,9 +100,13 @@ public class NeosensoryBlessed {
 
   // sendCommand encodes the command strings for the CLI in the proper format.
   private boolean sendCommand(String CliCommand) {
+
     if ((neoDeviceConnected) && (neoCliReady)) {
       byte[] CliBytes = CliCommand.getBytes(StandardCharsets.UTF_8);
-      neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WRITE_TYPE_DEFAULT);
+      //YY: WriteType in com.welie.blessed.BluetoothPeripheral was removed so WriteType in Android.bluetooth was used.
+      neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WriteType.WITH_RESPONSE);
+      //neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WRITE_TYPE_DEFAULT);
+
       return true;
     } else {
       return false;
@@ -313,7 +320,7 @@ public class NeosensoryBlessed {
         }
 
         // Log a successful change in notification status for the characteristic
-        @Override
+        //@Override
         public void onNotificationStateUpdate(
             BluetoothPeripheral peripheral,
             BluetoothGattCharacteristic characteristic,
@@ -337,7 +344,7 @@ public class NeosensoryBlessed {
         }
 
         // Log pass/fail upon attempting a a write characteristic
-        @Override
+        //@Override
         public void onCharacteristicWrite(
             BluetoothPeripheral peripheral,
             byte[] value,
@@ -360,7 +367,7 @@ public class NeosensoryBlessed {
 
         // For now we'll only broadcast UART_TX Notifications (i.e. CLI Output) in our module and
         // send other notifications to logcat
-        @Override
+        //@Override
         public void onCharacteristicUpdate(
             BluetoothPeripheral peripheral,
             byte[] value,
@@ -424,7 +431,7 @@ public class NeosensoryBlessed {
         }
 
         // Upon a failed connection, log the output
-        @Override
+        //@Override
         public void onConnectionFailed(BluetoothPeripheral peripheral, final int status) {
           neoDeviceConnected = false;
           broadcast(StatusUpdateType.CONNECTION,neoDeviceConnected);
@@ -436,7 +443,7 @@ public class NeosensoryBlessed {
         }
 
         // Upon a disconnect, log the output and attempt to reconnect every 5 seconds.
-        @Override
+        //@Override
         public void onDisconnectedPeripheral(
             final BluetoothPeripheral peripheral, final int status) {
           neoDeviceConnected = false;

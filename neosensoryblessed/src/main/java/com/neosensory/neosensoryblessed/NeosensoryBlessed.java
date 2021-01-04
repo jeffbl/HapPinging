@@ -17,17 +17,18 @@ import com.welie.blessed.BluetoothCentral;
 import com.welie.blessed.BluetoothCentralCallback;
 import com.welie.blessed.BluetoothPeripheral;
 import com.welie.blessed.BluetoothPeripheralCallback;
-import com.welie.blessed.WriteType;
+//import com.welie.blessed.WriteType;
 
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
+import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT;
 import static com.welie.blessed.BluetoothBytesParser.bytes2String;
-//import static com.welie.blessed.BluetoothPeripheral.GATT_SUCCESS;
+import static com.welie.blessed.BluetoothPeripheral.GATT_SUCCESS;
 
-import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
+//import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
 
 public class NeosensoryBlessed {
 
@@ -104,8 +105,8 @@ public class NeosensoryBlessed {
     if ((neoDeviceConnected) && (neoCliReady)) {
       byte[] CliBytes = CliCommand.getBytes(StandardCharsets.UTF_8);
       //YY: WriteType in com.welie.blessed.BluetoothPeripheral was removed so WriteType in Android.bluetooth was used.
-      neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WriteType.WITH_RESPONSE);
-      //neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WRITE_TYPE_DEFAULT);
+      //neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WriteType.WITH_RESPONSE);
+      neoPeripheral.writeCharacteristic(neoWriteCharacteristic, CliBytes, WRITE_TYPE_DEFAULT);
 
       return true;
     } else {

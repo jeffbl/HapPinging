@@ -19,9 +19,11 @@ import androidx.annotation.NonNull;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,12 +55,19 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     private TextView resultNetworkConnectivity;
     private TextView resultWifiSignal;
     private TextView resultBandwidth;
-    //Network simulator UI components
+
+    //Button UI for Activity Change
     private Switch switchSimulateNetwork;
+    private Button simulSetupButton;
+    private Button prefSetupButton;
+    private Spinner vibPatternSpinner;
     private SeekBar seekBarBandwidth;
     private SeekBar seekBarWifiStrength;
     private Switch switchNetworkWorking;
     private Switch switchIspWorking;
+
+    private Button confirmButton;
+    private Button cancelButton;
 
     //Needed to receive the async task SpeedTestTask response
     private Activity mActivity;
@@ -85,17 +94,21 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     // These are updated automatically by the reactive libraries
     // Haptic designers should consult their values inside a particular mapping strategy run()
     private int wifiStrength = 50; // 0-100 . The initial value is needed because the reactive library will update it only after there's a change in the wifi strength.
-    private boolean localRouterWorking;
-    private boolean ispWorking;
+    private boolean localRouterWorking = true;
+    private boolean ispWorking = true;
     // Bandwidth is updated after running the async task SpeedTestTask
-    private int bandwidth; // mbps
+    private int bandwidth = 50; // mbps
 
-    // Holds the simulated network states read from the UI
-    private boolean simulateNetwork = false;
+    // Holds the simulated network states read from the UI (YY: set default values)
+    private boolean simulateNetwork;
     private int simulatedWifiStrength;
     private boolean simulatedIspWorking;
     private boolean simulatedLocalRouterWorking;
     private int simulatedBandwidth;
+
+    // Holds pattern name;
+    private String patternname = "JB-Ping";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,10 +128,24 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         resultNetworkConnectivity = (TextView) findViewById(R.id.resultNetwork);
 
         switchSimulateNetwork = (Switch) findViewById(R.id.switchSimulate);
+        vibPatternSpinner = (Spinner) findViewById(R.id.vibSelectionSpinner);
+
         seekBarBandwidth = (SeekBar) findViewById(R.id.seekBar_bandwidth);
         seekBarWifiStrength = (SeekBar) findViewById(R.id.seekBar_wifi);
         switchNetworkWorking = (Switch) findViewById(R.id.switchNetworkOK);
         switchIspWorking = (Switch) findViewById(R.id.switchIspOk);
+
+        switchNetworkWorking.setChecked(simulatedLocalRouterWorking);
+        switchIspWorking.setChecked(simulatedIspWorking);
+        seekBarWifiStrength.setProgress(simulatedWifiStrength);
+        seekBarBandwidth.setProgress(simulatedBandwidth);
+
+        //set default values
+        simulateNetwork = false;
+        simulatedWifiStrength = 50;
+        simulatedBandwidth = 50;
+        simulatedIspWorking = false;
+        simulatedLocalRouterWorking = false;
 
         displayInitialUI();
         NeosensoryBlessed.requestBluetoothOn(this);
@@ -130,21 +157,203 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         neoVibe = new NeoVibe(null, (Vibrator) getSystemService(VIBRATOR_SERVICE));
 
         // Create the vibrating pattern thread (but don't start it yet)
-        vibratingPattern = new VibratingPatternMauricio();
+
+        vibratingPattern = new VibratingPatternPing();
         //  vibratingPattern = new VibratingPatternPing(); // Original Jeff's basic ping sweep
 
-        // ADD OTHER MAPPINGS HERE
-        // .
-        // .
+        //Additional setup
+
+
     }
 
-    ////////////////////////////////////////
-    // VibratingPattern Implementations
-    /////////////////////////////////////
-
-    // Add the implementation of new mappings here
-
     enum SweepType {DISCRETE, PSYCHOMETRIC};
+
+    class VibratingPatternYongjae1_Dynamic implements Runnable {
+        final String TAG = VibratingPatternYongjae1_Dynamic.class.getSimpleName();
+        private Pinger pinger = new Pinger();
+        //  final SweepType sweepType = SweepType.DISCRETE;
+        final SweepType sweepType = SweepType.PSYCHOMETRIC;
+
+
+        //YY: shared Mauricio's parameters as much as possible.
+        final int PRESENTATION_PERIOD = 6 * 1000;
+
+        final int MAX_INTENSITY = 200; // User's preference
+        final int MIN_INTENSITY = 30; // User's preference
+
+        final int LOWEST_BANDWIDTH = 2; // this maps to pause = MAX_PAUSE in the discrete sweep, and to SLOWEST_SWIPE in the psychometric sweep
+        final int HIGHEST_BANDWIDTH = 100; // this maps to pause = 0 ms in the discrete sweep, and to FASTEST_SWIPE in the psychometric sweep
+
+        @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted() && vibrating) {
+                try {
+                    //reused Jeff's code.
+                    long uptimeStart = uptimeMillis();
+                    boolean pingRet = pinger.ping("8.8.8.8", 2);
+                    Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis() - uptimeStart));
+
+                    int intensity;
+                    int duration;
+
+                    if (simulateNetwork) {
+                        if (simulatedIspWorking && simulatedLocalRouterWorking) {  //if ping succeeds before timeout
+                            intensity = (int) ((simulatedWifiStrength / 100.0) * (MAX_INTENSITY - MIN_INTENSITY)) + MIN_INTENSITY;
+                            duration = (int) (0.5 * PRESENTATION_PERIOD) - (int) ((0.35 * simulatedBandwidth/(double)(HIGHEST_BANDWIDTH-LOWEST_BANDWIDTH) *PRESENTATION_PERIOD ));
+                            Log.d("Main", "Duration:" + duration);
+                            if (duration < 200) duration = 200;
+                            neoVibe.sweepDiscrete(0, 3, intensity, duration);
+                        } else { //ping fails: indicate where's error
+                            if (!simulatedLocalRouterWorking) {
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                            } else if (!simulatedIspWorking) {
+                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
+                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
+                            }
+                        }
+                    } else {
+                        if (pingRet == true) {  //if ping succeeds before timeout
+                            intensity = (int) ((simulatedWifiStrength / 100.0) * (double)(MAX_INTENSITY - MIN_INTENSITY)) + MIN_INTENSITY;
+                            duration = (int) (0.5 * PRESENTATION_PERIOD) - (int) ((0.35 * simulatedBandwidth/(double)(HIGHEST_BANDWIDTH-LOWEST_BANDWIDTH) *PRESENTATION_PERIOD ));
+                            Log.d("Main", "Duration:" + duration);
+                            if (duration < 200) duration = 200;
+                            neoVibe.sweepDiscrete(0, 3, intensity, duration);
+                            //neoVibe.sweepDiscreteBounce(0, 3, intensity, duration);
+                        } else { //ping fails: indicate where's error
+                            if (!simulatedLocalRouterWorking) {
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                                neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
+                            } else if (!simulatedIspWorking) {
+                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
+                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
+                            }
+                        }
+                    }
+                    Thread.sleep(4 * 1000);
+                } catch (InterruptedException e) {
+                    if (blessedNeo != null) blessedNeo.stopMotors();
+                    if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
+                    Log.i(TAG, "Interrupted thread");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class VibratingPatternYongjae2_Static implements Runnable {
+        final String TAG = VibratingPatternYongjae2_Static.class.getSimpleName();
+        private Pinger pinger = new Pinger();
+        //  final SweepType sweepType = SweepType.DISCRETE;
+        final SweepType sweepType = SweepType.PSYCHOMETRIC;
+
+
+        //YY: shared Mauricio's parameters as much as possible.
+        final int PRESENTATION_PERIOD = 6 * 1000;
+
+        final int MAX_INTENSITY = 200; // User's preference
+        final int MIN_INTENSITY = 30; // User's preference
+
+        final int LOWEST_BANDWIDTH = 2; // this maps to pause = MAX_PAUSE in the discrete sweep, and to SLOWEST_SWIPE in the psychometric sweep
+        final int HIGHEST_BANDWIDTH = 150; // this maps to pause = 0 ms in the discrete sweep, and to FASTEST_SWIPE in the psychometric sweep
+
+        @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted() && vibrating) {
+                try {
+                    //reused Jeff's code.
+                    long uptimeStart = uptimeMillis();
+                    boolean pingRet = pinger.ping("8.8.8.8", 2);
+                    Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis() - uptimeStart));
+
+                    int intensity;
+                    int duration;
+
+                    if (simulateNetwork) {
+                        if (simulatedIspWorking && simulatedLocalRouterWorking) {  //if ping succeeds before timeout
+                            intensity = 40;
+                            duration = 200;
+                            neoVibe.vibe(intensity, intensity, intensity, intensity); // weak ack
+                            Thread.sleep(duration);
+                            neoVibe.vibeOff();
+                        } else {
+
+                            if (!simulatedLocalRouterWorking) {
+                                neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibeOff();
+                            } else {
+                                neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
+                                Thread.sleep(500);
+                                neoVibe.vibeOff();
+                            }
+                        }
+                    } else {
+                        if (pingRet == true) {  //if ping succeeds before timeout
+                            intensity = 40;
+                            duration = 200;
+                            neoVibe.vibe(intensity, intensity, intensity, intensity); // weak ack
+                            Thread.sleep(duration);
+                            neoVibe.vibeOff();
+                        } else { //ping fails: indicate where's error
+                            if (!localRouterWorking) {
+                                neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibeOff();
+                            } else {
+                                neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
+                                Thread.sleep(500);
+                                neoVibe.vibeOff();
+                            }
+                        }
+                    }
+                    Thread.sleep(4 * 1000);
+                } catch (InterruptedException e) {
+                    if (blessedNeo != null) blessedNeo.stopMotors();
+                    if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
+                    Log.i(TAG, "Interrupted thread");
+                    e.printStackTrace();
+                }
+            }
+
+            if (disconnectRequested) {
+                Log.i(TAG, "Disconnect requested while thread active");
+                blessedNeo.stopMotors();
+                blessedNeo.resumeDeviceAlgorithm();
+                // When disconnecting: it is possible for the device to process the disconnection request
+                // prior to processing the request to resume the onboard algorithm, which causes the last
+                // sent motor command to "stick"
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                blessedNeo.disconnectNeoDevice();
+                disconnectRequested = false;
+            }
+        }
+    }
+
 
     class VibratingPatternMauricio implements Runnable {
         final String TAG = VibratingPatternMauricio.class.getSimpleName();
@@ -154,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         /////////////////
 
         // Choose one type
-      //  final SweepType sweepType = SweepType.DISCRETE;
+        //  final SweepType sweepType = SweepType.DISCRETE;
         final SweepType sweepType = SweepType.PSYCHOMETRIC;
 
         final int PRESENTATION_PERIOD = 6 * 1000;
@@ -295,13 +504,11 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         }
     }
 
-
     // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
-    // the variable `vibrating` is False
-    // Jeff's original implementation - sweep if ping is ok
+// the variable `vibrating` is False
+// Jeff's original implementation - sweep if ping is ok
     class VibratingPatternPing implements Runnable {
         private Pinger pinger = new Pinger();
-
 
         public void run() {
             // loop until the thread is interrupted
@@ -315,6 +522,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                     if (pingRet == true) {  //if ping succeeds before timeout
                         neoVibe.sweepBounce(0.0F, 1.0F, 255, 2000);
                         //neoVibe.randomVibes(500, 255, 2000);
+
                     }
                     Thread.sleep(4 * 1000);
                 } catch (InterruptedException e) {
@@ -341,7 +549,6 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             }
         }
     }
-
 
     //////////////////////////
     // Cleanup on shutdown //
@@ -462,7 +669,6 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                         }
                     }
                 });
-
         switchSimulateNetwork.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 simulateNetwork = isChecked;
@@ -515,6 +721,32 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
+        });
+
+        vibPatternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch(parent.getItemAtPosition(position).toString())   {
+                    case "JB-Ping":
+                        vibratingPattern = new VibratingPatternPing();
+                        break;
+                    case "MFV":
+                        vibratingPattern = new VibratingPatternMauricio();
+                        break;
+                    case "YJ-Simple":
+                        vibratingPattern = new VibratingPatternYongjae2_Static();
+                        break;
+                    case "YJ-Dynamic":
+                        vibratingPattern = new VibratingPatternYongjae1_Dynamic();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
         });
     }
 
@@ -583,6 +815,10 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         Toast toast = Toast.makeText(context, message, duration);
         toast.show();
     }
+
+
+
+
     //////////////////////////////////////////////
     // Bluetooth and permissions initialization //
     //////////////////////////////////////////////

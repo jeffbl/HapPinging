@@ -229,8 +229,10 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                                 neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
                                 neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
                             } else if (!simulatedIspWorking) {
-                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
-                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
+                                neoVibe.sweepDiscrete(1, 2, MAX_INTENSITY, 1000);
+                                neoVibe.sweepDiscrete(1, 2, MAX_INTENSITY, 1000);
+                            } else if (simulatedBandwidth == 0 || simulatedWifiStrength ==0)    {
+                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 2000);
                             }
                         }
                     } else {
@@ -242,14 +244,16 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                             neoVibe.sweepDiscrete(0, 3, intensity, duration);
                             //neoVibe.sweepDiscreteBounce(0, 3, intensity, duration);
                         } else { //ping fails: indicate where's error
-                            if (!simulatedLocalRouterWorking) {
+                            if (!localRouterWorking) {
                                 neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
                                 neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
                                 neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
                                 neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, 500);
-                            } else if (!simulatedIspWorking) {
+                            } else if (!ispWorking) {
                                 neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
                                 neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 1000);
+                            } else {
+                                neoVibe.sweepDiscrete(2, 3, MAX_INTENSITY, 2000);
                             }
                         }
                     }
@@ -309,7 +313,15 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                                 neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
                                 Thread.sleep(500);
                                 neoVibe.vibeOff();
-                            } else {
+                            } else if (!simulatedIspWorking) {
+                                neoVibe.vibe(0, MAX_INTENSITY, MAX_INTENSITY, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, MAX_INTENSITY, MAX_INTENSITY, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, MAX_INTENSITY, MAX_INTENSITY, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibeOff();
+                            } else if (simulatedBandwidth == 0 || simulatedWifiStrength == 0) {
                                 neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
                                 Thread.sleep(500);
                                 neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
@@ -335,7 +347,16 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                                 neoVibe.vibe(MAX_INTENSITY, MAX_INTENSITY, 0, 0);
                                 Thread.sleep(500);
                                 neoVibe.vibeOff();
-                            } else {
+                            } else if (!ispWorking) {
+                                neoVibe.vibe(0, MAX_INTENSITY, MAX_INTENSITY, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, MAX_INTENSITY, MAX_INTENSITY, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibe(0, MAX_INTENSITY, MAX_INTENSITY, 0);
+                                Thread.sleep(500);
+                                neoVibe.vibeOff();
+                            }
+                            else {
                                 neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);
                                 Thread.sleep(500);
                                 neoVibe.vibe(0, 0, MAX_INTENSITY, MAX_INTENSITY);

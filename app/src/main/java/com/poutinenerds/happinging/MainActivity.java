@@ -658,15 +658,22 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             while (!Thread.currentThread().isInterrupted() && vibrating) {
                 try {
 
-                    long uptimeStart = uptimeMillis();
-                    boolean pingRet = pinger.ping("8.8.8.8", 2);
-                    Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis() - uptimeStart));
-                    if (pingRet == true) {  //if ping succeeds before timeout
-                        neoVibe.sweepBounce(0.0F, 1.0F, 255, 2000);
-                        //neoVibe.randomVibes(500, 255, 2000);
-
+                    if (simulateNetwork) {
+                        if (simulatedIspWorking && simulatedLocalRouterWorking) {  //if ping succeeds before timeout
+                            neoVibe.sweepBounce(0.0F, 1.0F, 255, 2000);
+                        }
+                        Thread.sleep(4 * 1000);
+                    }else {
+                        long uptimeStart = uptimeMillis();
+                        boolean pingRet = pinger.ping("8.8.8.8", 2);
+                        Log.d("Main", "Ping returned in this many ms:  " + (uptimeMillis() - uptimeStart));
+                        if (pingRet == true) {  //if ping succeeds before timeout
+                            neoVibe.sweepBounce(0.0F, 1.0F, 255, 2000);
+                            //neoVibe.randomVibes(500, 255, 2000);
+                        }
+                        Thread.sleep(4 * 1000);
                     }
-                    Thread.sleep(4 * 1000);
+
                 } catch (InterruptedException e) {
                     if (blessedNeo != null) blessedNeo.stopMotors();
                     if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();

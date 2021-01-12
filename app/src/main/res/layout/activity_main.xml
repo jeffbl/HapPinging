@@ -110,24 +110,23 @@
         android:id="@+id/cli_response"
         android:layout_width="317dp"
         android:layout_height="70dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:textAlignment="center"
 
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cli_header" />
 
     <TextView
         android:id="@+id/cli_header"
-        android:layout_width="324dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="13dp"
-        android:text="Neosensory Command Line Interface Output"
+        android:layout_width="328dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="12dp"
+        android:text="Neosensory Command Line Interface"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintHorizontal_bias="0.345"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/switchIspOk" />
 

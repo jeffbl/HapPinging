@@ -28,7 +28,7 @@ Using the dropdown menu, select an operation mode. If it is your first time usin
 4. Start the Vibrations
 Click the “START” button to start feeling vibrations every few seconds corresponding to the operation mode you selected. To help you get a sense of what you are currently experiencing, you can take a look at the Network Status information section and the detailed operation mode information.
 
-5. Quick Training Session
+## Quick Training Session
 
 Is your network working too well at the moment? To experience the vibration effects associated with different network failures, use Training Mode. To turn on training mode, activate the Training Mode switch in the middle of the screen. In training mode, your real network status will be overridden by the manual controls, letting you explore how the different network characteristics influence the vibration effects.
 

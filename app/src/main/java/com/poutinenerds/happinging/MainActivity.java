@@ -34,6 +34,8 @@ import com.neosensory.neosensoryblessed.NeosensoryBlessed;
 
 import com.potterhsu.Pinger;
 
+import org.w3c.dom.Text;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -130,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         switchSimulateNetwork = (Switch) findViewById(R.id.switchSimulate);
         vibPatternSpinner = (Spinner) findViewById(R.id.vibSelectionSpinner);
 
+
         seekBarBandwidth = (SeekBar) findViewById(R.id.seekBar_bandwidth);
         seekBarWifiStrength = (SeekBar) findViewById(R.id.seekBar_wifi);
         switchNetworkWorking = (Switch) findViewById(R.id.switchNetworkOK);
@@ -146,6 +149,24 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         simulatedBandwidth = 50;
         simulatedIspWorking = false;
         simulatedLocalRouterWorking = false;
+
+        //set training switches hidden by default
+        TextView txtTraining = (TextView) findViewById(R.id.txtTitleNetSimul);
+        TextView txtBandwidth = (TextView) findViewById(R.id.textViewBandwidth);
+        TextView txtWifiStrength = (TextView) findViewById(R.id.textViewWifiStrength);
+        TextView txtLocalRouter = (TextView) findViewById(R.id.textViewNetworkOK);
+        TextView txtIsp = (TextView) findViewById(R.id.textViewIspOk);
+
+        txtTraining.setVisibility(View.INVISIBLE);
+        txtBandwidth.setVisibility(View.INVISIBLE);
+        txtWifiStrength.setVisibility(View.INVISIBLE);
+        txtLocalRouter.setVisibility(View.INVISIBLE);
+        txtIsp.setVisibility(View.INVISIBLE);
+
+        seekBarBandwidth.setVisibility(View.INVISIBLE);
+        seekBarWifiStrength.setVisibility(View.INVISIBLE);
+        switchNetworkWorking.setVisibility(View.INVISIBLE);
+        switchIspWorking.setVisibility(View.INVISIBLE);
 
         displayInitialUI();
         NeosensoryBlessed.requestBluetoothOn(this);
@@ -363,8 +384,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         /////////////////
 
         // Choose one type
-        //  final SweepType sweepType = SweepType.DISCRETE;
-        final SweepType sweepType = SweepType.PSYCHOMETRIC;
+        final SweepType sweepType = SweepType.DISCRETE;
+        //final SweepType sweepType = SweepType.PSYCHOMETRIC;
 
         final int PRESENTATION_PERIOD = 6 * 1000;
 
@@ -379,6 +400,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         // Used in the discrete sweep
         final int MAX_PAUSE = 400;
         // MIN_PAUSE is 0
+        final int PAUSE = 100; // Default pause duration
+
         final int DURATION_VIB = 100; // has to be >= than NeoVibe.MIN_MS_BETWEEN_COMMANDS
 
         // Used in the psychometric sweepes
@@ -458,9 +481,9 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                     int intensity = convertWifiToIntensity(renderedWifiStrength);
 
                     if (!renderedLocalRouterWorking) {
-                        neoVibe.sweepDiscrete(0, 0, MAX_INTENSITY, DURATION_VIB, false, 0);
+                        neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, DURATION_VIB, false, PAUSE);
                     } else if (!renderedIspWorking) {
-                        neoVibe.sweepBounceDiscrete(0, 1, MAX_INTENSITY, DURATION_VIB, false, 0);
+                        neoVibe.sweepDiscrete(0, 2, MAX_INTENSITY, DURATION_VIB, false, PAUSE);
                     }
                     // No major problem. Now render wifi strength and bandwidth
                     else {
@@ -504,7 +527,128 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         }
     }
 
-// Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
+    class VibratingPatternMauricioSimple implements Runnable {
+        final String TAG = VibratingPatternMauricioSimple.class.getSimpleName();
+
+        ////////////////
+        // SETTINGS
+        /////////////////
+
+        // Choose one type
+        final SweepType sweepType = SweepType.DISCRETE;
+        //final SweepType sweepType = SweepType.PSYCHOMETRIC;
+
+        final int PRESENTATION_PERIOD = 6 * 1000;
+
+        final int MAX_INTENSITY = 150; // User's preference
+
+        final int WIFI_STRENGTH = 75;
+
+        final int LOWEST_BANDWIDTH = 2; // this maps to pause = MAX_PAUSE in the discrete sweep, and to SLOWEST_SWIPE in the psychometric sweep
+        final int HIGHEST_BANDWIDTH = 50; // this maps to pause = 0 ms in the discrete sweep, and to FASTEST_SWIPE in the psychometric sweep
+
+        // Used in the discrete sweep
+        final int PAUSE = 100;
+        final int MAX_PAUSE = 400;
+        // MIN_PAUSE is 0
+        final int DURATION_VIB = 100; // has to be >= than NeoVibe.MIN_MS_BETWEEN_COMMANDS
+
+        // Used in the psychometric sweeps
+        final int SLOWEST_SWIPE = 4000;
+        final int FASTEST_SWIPE = 800;
+
+
+        @Override
+        public void run() {
+            int renderedBandwidth;
+            int renderedWifiStrength;
+            boolean renderedLocalRouterWorking;
+            boolean renderedIspWorking;
+
+            // loop until the thread is interrupted
+            while (!Thread.currentThread().isInterrupted() && vibrating) {
+                try {
+                    //  Perform the async speedTest in a separated thread every cicle
+                    // The results probably won't be available in this cycle, but it doesn't matter
+                    new SpeedTestTask(mActivity).execute();
+
+                    if (simulateNetwork) {
+                        Log.d(TAG, "Simulating Network. Ignoring real status and considering those:");
+                        renderedBandwidth = simulatedBandwidth;
+                        renderedWifiStrength = simulatedWifiStrength;
+                        renderedLocalRouterWorking = simulatedLocalRouterWorking;
+                        renderedIspWorking = simulatedIspWorking;
+
+                    } else {
+                        // Using real network states
+                        Log.d(TAG, "Using real network info:");
+                        renderedBandwidth = bandwidth;
+                        renderedWifiStrength = wifiStrength;
+                        renderedLocalRouterWorking = localRouterWorking;
+                        renderedIspWorking = ispWorking;
+                    }
+
+                    Log.d(TAG, "Bandwidth " + renderedBandwidth);
+                    Log.d(TAG, "Wifi " + renderedWifiStrength);
+                    Log.d(TAG, "Local Router working " + renderedLocalRouterWorking);
+                    Log.d(TAG, "ISP working " + renderedIspWorking);
+                    Log.d(TAG, "------------------------------");
+
+                    //////////////
+                    // Mauricio's Mapping Logic
+                    /////////////
+
+                    int intensity = WIFI_STRENGTH;
+                    int pause = PAUSE;
+
+                    if (!renderedLocalRouterWorking) {
+                        neoVibe.sweepDiscrete(0, 1, MAX_INTENSITY, DURATION_VIB, false, pause);
+                    } else if (!renderedIspWorking) {
+                        neoVibe.sweepDiscrete(0, 2, MAX_INTENSITY, DURATION_VIB, false, pause);
+                    }
+
+                    // No major problem. Now render wifi strength and bandwidth
+                    else {
+                        // Two options for sweeping
+                        switch (sweepType){
+                            case DISCRETE:
+                                neoVibe.sweepBounceDiscrete(0, 3, intensity, DURATION_VIB, false, pause);
+                                break;
+                            case PSYCHOMETRIC:
+                                int sweepDuration =  FASTEST_SWIPE + pause *(SLOWEST_SWIPE - FASTEST_SWIPE)/MAX_PAUSE; // converts  pause used in discrete to duration
+                                neoVibe.sweepBounce(0.0F, 1.0F, (float)intensity/255, sweepDuration);
+                                break;
+                        }
+                    }
+
+                    Thread.sleep(PRESENTATION_PERIOD);
+
+                } catch (InterruptedException e) {
+                    if (blessedNeo != null) blessedNeo.stopMotors();
+                    if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
+                    Log.i(TAG, "Interrupted thread");
+                    e.printStackTrace();
+                }
+            }
+            if (disconnectRequested) {
+                Log.i(TAG, "Disconnect requested while thread active");
+                blessedNeo.stopMotors();
+                blessedNeo.resumeDeviceAlgorithm();
+                // When disconnecting: it is possible for the device to process the disconnection request
+                // prior to processing the request to resume the onboard algorithm, which causes the last
+                // sent motor command to "stick"
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                blessedNeo.disconnectNeoDevice();
+                disconnectRequested = false;
+            }
+        }
+    }
+
+    // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
 // the variable `vibrating` is False
 // Jeff's original implementation - sweep if ping is ok
     class VibratingPatternPing implements Runnable {
@@ -656,14 +800,14 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                     public void onClick(View v) {
                         if (!vibrating) {
                             if (blessedNeo != null) blessedNeo.pauseDeviceAlgorithm();
-                            neoVibrateButton.setText("Stop Vibration Pattern");
+                            neoVibrateButton.setText("Stop");
                             vibrating = true;
                             // run the vibrating pattern loop
                             vibratingPatternThread = new Thread(vibratingPattern);
                             vibratingPatternThread.start();
 
                         } else {
-                            neoVibrateButton.setText("Start Vibration Pattern");
+                            neoVibrateButton.setText("Start");
                             vibrating = false;
                             if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
                         }
@@ -671,8 +815,37 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                 });
         switchSimulateNetwork.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                TextView txtTraining = (TextView) findViewById(R.id.txtTitleNetSimul);
+                TextView txtBandwidth = (TextView) findViewById(R.id.textViewBandwidth);
+                TextView txtWifiStrength = (TextView) findViewById(R.id.textViewWifiStrength);
+                TextView txtLocalRouter = (TextView) findViewById(R.id.textViewNetworkOK);
+                TextView txtIsp = (TextView) findViewById(R.id.textViewIspOk);
+
                 simulateNetwork = isChecked;
 
+                if(switchSimulateNetwork.isChecked()) {
+                    seekBarBandwidth.setVisibility(View.VISIBLE);
+                    seekBarWifiStrength.setVisibility(View.VISIBLE);
+                    switchNetworkWorking.setVisibility(View.VISIBLE);
+                    switchIspWorking.setVisibility(View.VISIBLE);
+
+                    txtTraining.setVisibility(View.VISIBLE);
+                    txtBandwidth.setVisibility(View.VISIBLE);
+                    txtWifiStrength.setVisibility(View.VISIBLE);
+                    txtLocalRouter.setVisibility(View.VISIBLE);
+                    txtIsp.setVisibility(View.VISIBLE);
+                }else{
+                    seekBarBandwidth.setVisibility(View.INVISIBLE);
+                    seekBarWifiStrength.setVisibility(View.INVISIBLE);
+                    switchNetworkWorking.setVisibility(View.INVISIBLE);
+                    switchIspWorking.setVisibility(View.INVISIBLE);
+
+                    txtTraining.setVisibility(View.INVISIBLE);
+                    txtBandwidth.setVisibility(View.INVISIBLE);
+                    txtWifiStrength.setVisibility(View.INVISIBLE);
+                    txtLocalRouter.setVisibility(View.INVISIBLE);
+                    txtIsp.setVisibility(View.INVISIBLE);
+                }
             }
         });
 
@@ -727,13 +900,16 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch(parent.getItemAtPosition(position).toString())   {
-                    case "JB-Ping":
+                    case "Fast and Sweep":
                         vibratingPattern = new VibratingPatternPing();
                         break;
-                    case "MFV":
+                    case "Adaptive Bounded Sweep":
                         vibratingPattern = new VibratingPatternMauricio();
                         break;
-                    case "YJ-Simple":
+                    case "Bounded Sweep":
+                        vibratingPattern = new VibratingPatternMauricioSimple();
+                        break;
+                    case "Sweep and Notify":
                         vibratingPattern = new VibratingPatternYongjae2_Static();
                         break;
                     case "YJ-Dynamic":
@@ -756,7 +932,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         //neoVibrateButton.setVisibility(View.INVISIBLE);
         neoVibrateButton.setClickable(false);
         neoVibrateButton.setText(
-                "Start Vibration Pattern"); // Vibration stops on disconnect so reset the button text
+                "Start"); // Vibration stops on disconnect so reset the button text
         neoConnectButton.setText("Scan and Connect to Neosensory Buzz");
         neoConnectButton.setOnClickListener(
                 new View.OnClickListener() {

@@ -1,5 +1,7 @@
-# What’s HapPinging? Continuous Background Network Monitoring with HapPing
-An Android app that lets you feel the stability of your network connection on a Neosensory Buzz haptic wristband.
+![Alt text](figures/happing_logo.png)
+
+# HapPing
+A revolutionary sensory substitution application that lets you feel the status and stability of your network connection through vibrations with a Neosensory Buzz wristband.
 
 ## What problem are you going to solve?
 With a vast number of employers moving to a work from home model causing a corresponding increase in bandwidth hungry videoconferencing solutions, many people are realizing that their home internet connection is not as robust as they imagined. Suddenly dropping out of a call or having lag/latency issues are problems many of us face on a daily basis. In the stress of the moment, it can be difficult to determine exactly where a networking issue is occurring, e.g., device-router, modem-ISP, ISP-server. At the same time, monitoring one’s internet access quality using traditional network monitoring tools requires overt attention, which takes you away from the conversation or task you are trying to engage in.
@@ -9,7 +11,7 @@ We propose periodically presenting information on the connectivity and quality o
 
 Current network monitoring solutions require a user or network administrator to orient their attention towards a graphical user interface to understand a networking issue. This is typically a notification of an automatically detected issue, or when an application stops functioning normally. We argue that maintaining an ongoing high-level background awareness of the network’s state would allow a user or network administrator to monitor their infrastructure without explicitly dedicating their visual and cognitive attention. In addition, the proposed approach would allow users to do so while away from their workstation.  
 
-Taking advantage of the four actuators of the Neosensory Buzz, a representation of the transit of a data packet through each network node (e.g., Device, router, ISP, server) will be tangibly represented, providing a sense of where in the network an issue is occurring without even having to open a network monitoring tool. 
+Taking advantage of the four actuators of the Neosensory Buzz, a representation of the transit of a data packet through each network node (e.g., Device, router, ISP, server) will be tangibly represented, providing a sense of where in the network an issue is occurring without even having to open a network monitoring tool.
 
 ## How does your solution work? What are the main features? Please specify how you will use the Neosensory Buzz in your solution.
 Our solution is composed of a mobile application and the Neosensory Buzz. The application will be responsible for i) sensing the internet access quality through a mix of heuristics, e.g., wifi-signal strength, latency to an external server (ping), bandwidth; ii) translating the calculated quality to vibration patterns delivered by the four actuators; iii) transmitting the patterns to Neosensory Buzz.
@@ -19,7 +21,7 @@ The mapping between internet access quality and vibration patterns will be desig
 
 ## Updates
 
-SweepDiscrete and SweepBounceDiscrete implemented 
+SweepDiscrete and SweepBounceDiscrete implemented
 
 Full integration between NetworkMonitoring and Jeff's initial implementation
 

@@ -13,10 +13,10 @@ Aligned with the idea of sensory substitution, all but one operation mode (Sweep
 ## Quick Start
 Here is a step by step guide that will help you get started feeling your network! To experience HapPing, you will need a Neosensory Buzz wristband, and an Android smartphone.
 
-1. Pair your Neosensory Buzz
+1 Pair your Neosensory Buzz
 1.1 Install the Neosensory Android application and follow Neosensory’s instructions to pair the device.
 
-2. Install & Launch the HapPing Application
+2 Install & Launch the HapPing Application
 
 2.1 Download the HapPing APK from the [repository’s release section](https://github.com/jeffbl/HapPinging/releases/). 
 2.2 Open or execute the APK file on your Android device. You should be prompted for your permission to install the application. You may have to change some settings to allow the installation of an application coming from an untrusted source.  

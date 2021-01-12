@@ -25,13 +25,13 @@ Here is a step by step guide that will help you get started feeling your network
 
 2.4 Click the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button. Successful connection should be acknowledged with a brief popup message, the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button changing to a “DISCONNECT” button, and the appearance of debug information in the Neosensory Command Line Interface at the bottom of the application’s graphical user interface.
 
-3. Select an Operation Mode
+3 Select an Operation Mode
 Using the dropdown menu, select an operation mode. If it is your first time using HapPing, we recommend that you begin with the Bounded Sweep mode. You can find information about the different operation modes below. TIP: Stop the presentation of vibrations before changing operation modes!
 
-4. Start the Vibrations
+4 Start the Vibrations
 Click the “START” button to start feeling vibrations every few seconds corresponding to the operation mode you selected. To help you get a sense of what you are currently experiencing, you can take a look at the Network Status information section and the detailed operation mode information.
 
-5. Quick Training Session
+5 Quick Training Session
 Is your network working too well at the moment? To experience the vibration effects associated with different network failures, use Training Mode. To turn on training mode, activate the Training Mode switch in the middle of the screen. In training mode, your real network status will be overridden by the manual controls, letting you explore how the different network characteristics influence the vibration effects.
 
 5.1 Everything is good: Activate both the “Local Router OK” and “ISP OK” switches. This is what you should feel when there are no issues with your connectivity.

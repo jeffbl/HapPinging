@@ -34,8 +34,6 @@ import com.neosensory.neosensoryblessed.NeosensoryBlessed;
 
 import com.potterhsu.Pinger;
 
-import org.w3c.dom.Text;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -179,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
         // Create the vibrating pattern thread (but don't start it yet)
 
-        vibratingPattern = new VibratingPatternPing();
+        vibratingPattern = new PatternFastAndSweep();
         //  vibratingPattern = new VibratingPatternPing(); // Original Jeff's basic ping sweep
 
         //Additional setup
@@ -189,8 +187,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
     enum SweepType {DISCRETE, PSYCHOMETRIC};
 
-    class VibratingPatternYongjae1_Dynamic implements Runnable {
-        final String TAG = VibratingPatternYongjae1_Dynamic.class.getSimpleName();
+    class PatternSweepAndNotifyDynamic implements Runnable {
+        final String TAG = PatternSweepAndNotifyDynamic.class.getSimpleName();
         private Pinger pinger = new Pinger();
         //  final SweepType sweepType = SweepType.DISCRETE;
         final SweepType sweepType = SweepType.PSYCHOMETRIC;
@@ -266,8 +264,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         }
     }
 
-    class VibratingPatternYongjae2_Static implements Runnable {
-        final String TAG = VibratingPatternYongjae2_Static.class.getSimpleName();
+    class PatternSweepAndNotify implements Runnable {
+        final String TAG = PatternSweepAndNotify.class.getSimpleName();
         private Pinger pinger = new Pinger();
         //  final SweepType sweepType = SweepType.DISCRETE;
         final SweepType sweepType = SweepType.PSYCHOMETRIC;
@@ -376,8 +374,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     }
 
 
-    class VibratingPatternMauricio implements Runnable {
-        final String TAG = VibratingPatternMauricio.class.getSimpleName();
+    class PatternAdaptiveBoundedSweep implements Runnable {
+        final String TAG = PatternAdaptiveBoundedSweep.class.getSimpleName();
 
         ////////////////
         // SETTINGS
@@ -527,8 +525,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         }
     }
 
-    class VibratingPatternMauricioSimple implements Runnable {
-        final String TAG = VibratingPatternMauricioSimple.class.getSimpleName();
+    class PatternBoundedSweep implements Runnable {
+        final String TAG = PatternBoundedSweep.class.getSimpleName();
 
         ////////////////
         // SETTINGS
@@ -651,7 +649,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
 // the variable `vibrating` is False
 // Jeff's original implementation - sweep if ping is ok
-    class VibratingPatternPing implements Runnable {
+    class PatternFastAndSweep implements Runnable {
         private Pinger pinger = new Pinger();
 
         public void run() {
@@ -901,19 +899,19 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch(parent.getItemAtPosition(position).toString())   {
                     case "Fast and Sweep":
-                        vibratingPattern = new VibratingPatternPing();
+                        vibratingPattern = new PatternFastAndSweep();
                         break;
                     case "Adaptive Bounded Sweep":
-                        vibratingPattern = new VibratingPatternMauricio();
+                        vibratingPattern = new PatternAdaptiveBoundedSweep();
                         break;
                     case "Bounded Sweep":
-                        vibratingPattern = new VibratingPatternMauricioSimple();
+                        vibratingPattern = new PatternBoundedSweep();
                         break;
                     case "Sweep and Notify":
-                        vibratingPattern = new VibratingPatternYongjae2_Static();
+                        vibratingPattern = new PatternSweepAndNotify();
                         break;
-                    case "YJ-Dynamic":
-                        vibratingPattern = new VibratingPatternYongjae1_Dynamic();
+                    case "Sweep and Notify Dynamic":
+                        vibratingPattern = new PatternSweepAndNotifyDynamic();
                         break;
                 }
             }

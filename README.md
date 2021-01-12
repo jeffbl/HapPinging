@@ -14,34 +14,32 @@ Aligned with the idea of sensory substitution, all but one operation mode (Sweep
 Here is a step by step guide that will help you get started feeling your network! To experience HapPing, you will need a Neosensory Buzz wristband, and an Android smartphone.
 
 1. Pair your Neosensory Buzz
- 1. Install the Neosensory Android application and follow Neosensory’s instructions to pair the device.
+   1. Install the Neosensory Android application and follow Neosensory’s instructions to pair the device.
 
 2. Install & Launch the HapPing Application
- 1. Download the HapPing APK from the [repository’s release section](https://github.com/jeffbl/HapPinging/releases/). 
- 2. Open or execute the APK file on your Android device. You should be prompted for your permission to install the application. You may have to change some settings to allow the installation of an application coming from an untrusted source.  
+   1. Download the HapPing APK from the [repository’s release section](https://github.com/jeffbl/HapPinging/releases/). 
+   2. Open or execute the APK file on your Android device. You should be prompted for your permission to install the application. You may have to change some settings to allow the installation of an application coming from an untrusted source.  
+   3. Launch HapPing by tapping its icon
+   4. Click the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button. Successful connection should be acknowledged with a brief popup message, the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button changing to a “DISCONNECT” button, and the appearance of debug information in the Neosensory Command Line Interface at the bottom of the application’s graphical user interface.
 
-2.3 Launch HapPing by tapping its icon
-
-2.4 Click the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button. Successful connection should be acknowledged with a brief popup message, the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button changing to a “DISCONNECT” button, and the appearance of debug information in the Neosensory Command Line Interface at the bottom of the application’s graphical user interface.
-
-3 Select an Operation Mode
+3. Select an Operation Mode
 Using the dropdown menu, select an operation mode. If it is your first time using HapPing, we recommend that you begin with the Bounded Sweep mode. You can find information about the different operation modes below. TIP: Stop the presentation of vibrations before changing operation modes!
 
-4 Start the Vibrations
+4. Start the Vibrations
 Click the “START” button to start feeling vibrations every few seconds corresponding to the operation mode you selected. To help you get a sense of what you are currently experiencing, you can take a look at the Network Status information section and the detailed operation mode information.
 
-5 Quick Training Session
+5. Quick Training Session
 Is your network working too well at the moment? To experience the vibration effects associated with different network failures, use Training Mode. To turn on training mode, activate the Training Mode switch in the middle of the screen. In training mode, your real network status will be overridden by the manual controls, letting you explore how the different network characteristics influence the vibration effects.
 
-5.1 Everything is good: Activate both the “Local Router OK” and “ISP OK” switches. This is what you should feel when there are no issues with your connectivity.
+   1. Everything is good: Activate both the “Local Router OK” and “ISP OK” switches. This is what you should feel when there are no issues with your connectivity.
 
-5.1.1 Poor WIFI: Put the Wifi Strength slider all the way to the left. Not all mappings use the Wifi Strength. Those that do are designed such that a weak WIFI signal increases the vibration intensity, whereas a strong WIFI signal reduces it.
+   2. Poor WIFI: Put the Wifi Strength slider all the way to the left. Not all mappings use the Wifi Strength. Those that do are designed such that a weak WIFI signal increases the vibration intensity, whereas a strong WIFI signal reduces it.
 
-5.1.2 Poor bandwidth: Ensuring the Wifi Strength is approximately in the middle of its slider, position the bandwidth slider all the way to the left. Not all mappings use the bandwidth information. Those that do are designed such that a low bandwidth lengthen the time it takes for the haptic ping to travel across the actuators. A very high bandwidth, would instead produce a haptic ping that travels very fast between the actuators.
+   3. Poor bandwidth: Ensuring the Wifi Strength is approximately in the middle of its slider, position the bandwidth slider all the way to the left. Not all mappings use the bandwidth information. Those that do are designed such that a low bandwidth lengthen the time it takes for the haptic ping to travel across the actuators. A very high bandwidth, would instead produce a haptic ping that travels very fast between the actuators.
 
-5.1.3 Connection to router lost: Disable the “Local Router OK” switch. Refer to the description of the different operation modes for a detailed description of what you should feel.
+   4. Connection to router lost: Disable the “Local Router OK” switch. Refer to the description of the different operation modes for a detailed description of what you should feel.
 
-5.1.4 Issue with internet service provider: Ensure that the “Local Router OK” switch is enabled, disable the “ISP OK” switch. Refer to the description of the different operation modes for a detailed description of what you should feel.
+   5. Issue with internet service provider: Ensure that the “Local Router OK” switch is enabled, disable the “ISP OK” switch. Refer to the description of the different operation modes for a detailed description of what you should feel.
 
 
 ## Operation Modes

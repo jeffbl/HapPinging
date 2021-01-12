@@ -504,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         }
     }
 
-    // Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
+// Create a Runnable (thread) to send a repeating vibrating pattern. Should terminate if
 // the variable `vibrating` is False
 // Jeff's original implementation - sweep if ping is ok
     class VibratingPatternPing implements Runnable {

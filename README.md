@@ -54,14 +54,11 @@ All operation modes rely on the concept of a haptic ping. A haptic ping is analo
 #### Everything is good
 As everything is fine, your ping traveled all the way from your smartphone, to the Google server and back. This is rendered as a vibration that sweeps from the actuator on one end of the wristband to the other end and back.
 
-#### Smartphone/Router Issues
+#### Router Issues
 Something is wrong and you are no longer connected to your router. The haptic ping starts from the smartphone, travels to the router, but fails to make it further or return. This is rendered as a vibration that starts on one end, goes one actuator away then stops in its tracks.
 
-#### Router/Internet Service Provider Issues
+#### Internet Service Provider Issues
 You are connected to your router, but you are unable to connect to your internet service provider. The haptic ping starts from the smartphone, travels to the router, tries to make it to your ISP but fails to make it further or return. This is rendered as a vibration that starts on one end, sweeps two actuators away then stops in its tracks.
-
-#### Internet Service Provider/World Issues
-You are connected to your router, you can connect to your internet service provider but you are unable to reach Google’s servers. The haptic ping starts from the smartphone, travels to the router, makes it through your ISP but fails to make it to Google. This is rendered as a vibration that starts on one end, sweeps three actuators away then stops in its tracks.
 
 ### Adaptive Bounded Sweep - A Step Up in Complexity
 The Adaptive Bounded Sweep operation mode is an extension of the Bounded Sweep. The haptic ping behaves in the same way as in the Bounded Sweep mode. However, the intensity of the vibration is modulated by the WIFI signal strength (Weaker wifi results in stronger vibrations, while stronger wifi results in weaker vibrations) and your bandwidth modulates the speed at which the haptic ping travels on the wristband (high bandwidth will travel faster than low bandwidth).

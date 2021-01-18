@@ -49,12 +49,17 @@ Here is a brief description of currently implemented operation modes. As mention
 All operation modes rely on the concept of a haptic ping. A haptic ping is analogous to a traditional networking ping and travels along the Neosensory Buzz’s actuators, simulating the ping packets traveling across a computer network. This intuitive direct mapping facilitates the troubleshooting process of network issues and turns a networking fault into a highly perceptually distinctive effect to make the problem easy to address.
 
 ### Bounded Sweep - Recommended Starting Point
-[INSERT IMAGE OF WRISTBAND AND DIFFERENT ICONS]
 
 #### Everything is good
+
+![HapPing logo](figures/boundedsweep1.png)
+
 As everything is fine, your ping traveled all the way from your smartphone, to the Google server and back. This is rendered as a vibration that sweeps from the actuator on one end of the wristband to the other end and back.
 
 #### Router Issues
+
+![HapPing logo](figures/boundedsweepfail.png)
+
 Something is wrong and you are no longer connected to your router. The haptic ping starts from the smartphone, travels to the router, but fails to make it further or return. This is rendered as a vibration that starts on one end, goes one actuator away then stops in its tracks.
 
 #### Internet Service Provider Issues
@@ -64,7 +69,7 @@ You are connected to your router, but you are unable to connect to your internet
 The Adaptive Bounded Sweep operation mode is an extension of the Bounded Sweep. The haptic ping behaves in the same way as in the Bounded Sweep mode. However, the intensity of the vibration is modulated by the WIFI signal strength (Weaker wifi results in stronger vibrations, while stronger wifi results in weaker vibrations) and your bandwidth modulates the speed at which the haptic ping travels on the wristband (high bandwidth will travel faster than low bandwidth).
 
 ### Fast and Sweep - Keep It Simple, Stupid
-[INSERT IMAGE OF WRISTBAND AND DIFFERENT ICONS]
+![HapPing logo](figures/boundedsweep1.png)
 
 #### Everything Is Good
 You are connected to your router, it is connecting properly to your ISP and your signal makes it to Google’s servers. This is rendered as a haptic ping that travels from the actuator on one end of the wristband, to the other end before making it back.
@@ -73,25 +78,36 @@ You are connected to your router, it is connecting properly to your ISP and your
 There is an issue somewhere between your smartphone and Google’s server. In Fast and Sweep mode, any issue will result in NO effect being rendered, quickly bringing it up to your attention, since you lose the comfort of feeling your data traveling every few seconds. Unlike in the (Adaptive) Bounded Sweep mode(s), the Fast and Sweep mode does not represent the haptic ping partially making it to its target server.
 
 ### Sweep and Notify - The Comfort of Notifications
-[INSERT IMAGE OF WRISTBAND AND DIFFERENT ICONS]
 
 #### Everything is good
+
+![HapPing logo](figures/sweepnotify.png)
+
 (simple) You are connected to your router and ISP, and your signal makes it to Google’s servers. The main idea is: “no news is good news;” so it just presents a short and weak pulse periodically when everything is okay.
 (dynamic) It will present an unidirectional (#1 to #4) flow of pulse, the speed of pulse indicates the bandwidth; faster connection, faster speed of flow.
 
 #### Smartphone/Router Issues
+
+![HapPing logo](figures/sweepnotifyfail1.png)
+
 (Simple)
 It will present three pulses on actuator #1 and #2 to indicate there are problem(s) in the connection between your smartphone and (Wifi) router. (The position indicates where the problem is.)
 (Dynamic)
 The notification signal has features, 4 times of 500 ms, presented on the actuators #1 and #2.
 
 #### Router/Internet Service Provider Issues
+
+![HapPing logo](figures/sweepnotifyfail2.png)
+
 (Simple)
 Three pulses on actuator #2 and #3 indicate there are problem(s) in the connection between your router and ISP.
 (Dynamic)
 The notification signal has features, 2 times of 1 s, presented on the actuators #2 and #3.
 
 #### Internet Service Provider/World Issues
+
+![HapPing logo](figures/sweepnotifyfail3.png)
+
 (Simple)
 Three pulses on actuator #3 and #4indicate there are problem(s) in the connection between your ISP and world. 
 (Dynamic)

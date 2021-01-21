@@ -114,11 +114,11 @@ Three pulses on actuator #3 and #4indicate there are problem(s) in the connectio
 One long (2 s) pulse on actuators #3 and #4.
 
 ## Build HapPing from source
-1 Build and Install the Application
-1.1 Clone this repository to your system.
-1.2 In Android Studio, “run” the application, selecting your device as the target system.
+1. Build and Install the Application
+  1. Clone this repository to your system.
+  2. In Android Studio, “run” the application, selecting your device as the target system.
 
-2 Make your own new mode, following the existing examples in MainActivity.java. Note that you can use the NeoVibe.java class to render different effects, including sweeps.
+2. Make your own new mode, following the existing examples in MainActivity.java. Note that you can use the NeoVibe.java class to render different effects, including sweeps.
 
 
 # TO DO

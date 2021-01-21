@@ -1,6 +1,6 @@
 ![HapPing logo](figures/happing_logo.png)
 
-HapPing is a sensory substitution application for feeling the status and stability of your network connection through vibrations with a Neosensory Buzz wristband.
+HapPing is a sensory substitution application for feeling the status and stability of your network connection through vibrations with a [Neosensory Buzz wristband](http://neosensory.com).
 
 You’ve moved online for your work meetings and social events, but sometimes, your internet connection just drops out or gets slow and fuzzy. Figuring out what went wrong, and how to fix it, is both annoying and stressful. Is it your wifi? Is your ISP having problems? Did your dog bite your ethernet cable? With HapPing, you can feel issues before they even show up in the actual video and audio of your video conference, letting you keep all your attention on the call itself. HapPing provides reassurance that everything is fine, but starts feeling different when things start going wrong with the connection. For example, it can tell you when things are broken so that you don’t continue talking during a presentation even though you aren’t getting through. With ongoing use, we expect that HapPing can even give you hints of where problems are developing, and what part of the connection is causing issues, letting you investigate before you fully drop off.
 
@@ -123,3 +123,8 @@ One long (2 s) pulse on actuators #3 and #4.
 
 # TO DO
 Implementation of network monitoring and vibration rendering as foreground service.
+
+Allow rendering to be switched without first manually turning it off before selecting the new one.
+
+# THANKS
+Thanks to [Neosensory](http://neosensory.com) for supplying us with a Buzz as part of the [Neoedge Hackster.io developer competition](https://www.hackster.io/contests/neoedge). This project is based on a fork of [Neosensory's Android demo application](https://github.com/neosensory/neosensory-sdk-for-android-java).

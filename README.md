@@ -1,11 +1,11 @@
 ![HapPing logo](figures/happing_logo.png)
 
-HapPing is a “life-changing” sensory substitution application for feeling the status and stability of your network connection through vibrations with a Neosensory Buzz wristband.
+HapPing is a sensory substitution application for feeling the status and stability of your network connection through vibrations with a Neosensory Buzz wristband.
 
 You’ve moved online for your work meetings and social events, but sometimes, your internet connection just drops out or gets slow and fuzzy. Figuring out what went wrong, and how to fix it, is both annoying and stressful. Is it your wifi? Is your ISP having problems? Did your dog bite your ethernet cable? With HapPing, you can feel issues before they even show up in the actual video and audio of your video conference, letting you keep all your attention on the call itself. HapPing provides reassurance that everything is fine, but starts feeling different when things start going wrong with the connection. For example, it can tell you when things are broken so that you don’t continue talking during a presentation even though you aren’t getting through. With ongoing use, we expect that HapPing can even give you hints of where problems are developing, and what part of the connection is causing issues, letting you investigate before you fully drop off.
 
 To help you monitor your network's status, HapPing first checks whether your smartphone is correctly connecting to your wireless router, your internet service provider and finally, Google. From there, it translates that information into vibrations using the mode you select (described below) and presents it every few seconds. The different modes were created to offer varying levels of details and match user preferences:
- The simplest one, Fast and Sweep, presents a sweeping back and forth effect when you can successfully reach the Google server.
+ The simplest one, Fast and Sweep, presents a sweeping back and forth effect when you can successfully reach a Google server.
 On the more complex side, Adaptive Bounded Sweep encodes information about your wifi signal strength, bandwidth and connectivity of every important node between your smartphone and Google's servers. 
 
 Aligned with the idea of sensory substitution, all but one operation mode (Sweep and Notify) were designed such that you will no longer notice the constant presentation of vibrations after 1-2 weeks, only picking up on it when something unusual happens, e.g., a change in the pattern due to a wifi router connection issue.
@@ -36,7 +36,7 @@ Is your network working too well at the moment? To experience the vibration effe
 
    2. Poor WIFI: Put the Wifi Strength slider all the way to the left. Not all mappings use the Wifi Strength. Those that do are designed such that a weak WIFI signal increases the vibration intensity, whereas a strong WIFI signal reduces it.
 
-   3. Poor bandwidth: Ensuring the Wifi Strength is approximately in the middle of its slider, position the bandwidth slider all the way to the left. Not all mappings use the bandwidth information. Those that do are designed such that a low bandwidth lengthen the time it takes for the haptic ping to travel across the actuators. A very high bandwidth, would instead produce a haptic ping that travels very fast between the actuators.
+   3. Poor bandwidth: Ensuring the Wifi Strength is approximately in the middle of its slider, position the bandwidth slider all the way to the left. Not all mappings use the bandwidth information. Those that do are designed such that a low bandwidth lengthens the time it takes for the haptic ping to travel across the actuators. A very high bandwidth would instead produce a haptic ping that travels very fast between the actuators.
 
    4. Connection to router lost: Disable the “Local Router OK” switch. Refer to the description of the different operation modes for a detailed description of what you should feel.
 
@@ -54,7 +54,7 @@ All operation modes rely on the concept of a haptic ping. A haptic ping is analo
 
 ![HapPing logo](figures/boundedsweep1.png)
 
-As everything is fine, your ping traveled all the way from your smartphone, to the Google server and back. This is rendered as a vibration that sweeps from the actuator on one end of the wristband to the other end and back.
+As everything is fine, your ping traveled all the way from your smartphone, to a Google server and back. This is rendered as a vibration that sweeps from the actuator on one end of the wristband to the other end and back.
 
 #### Router Issues
 

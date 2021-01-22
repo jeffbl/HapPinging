@@ -17,7 +17,9 @@ public class NeoVibe {
     private final int MIN_MS_BETWEEN_COMMANDS = 100; //100
     private Vibrator vibrator;
 
-    private final boolean VIBE_PHONE = true;  //TODO: could be a checkbox in the UI
+    //For debugging when you don't have the band with you, at least you get some feedback
+    //TODO: could be a checkbox in the UI
+    private final boolean VIBE_PHONE = false;
 
     public NeoVibe(NeosensoryBlessed bn, Vibrator v) {
         setBlessedNeo(bn);
@@ -52,10 +54,6 @@ public class NeoVibe {
 
         Log.d(TAG,"New Amplitudes: " + v[0] + " " + v[1] + " " + v[2] + " " + v[3]);
 
-        if(blessedNeo != null) {
-            return(blessedNeo.vibrateMotors(v));
-        }
-
         if(VIBE_PHONE){
             if(vibrator.hasVibrator()) {
                 vibrator.cancel(); //get ready for new command by terminating previous vibration.
@@ -63,14 +61,19 @@ public class NeoVibe {
                 int intensity = (v[0] + v[1] + v[2] + v[3]) / 4;  //set intensity to average of individual intensities...
                 if (intensity > 0) {
                     if(vibrator.hasAmplitudeControl()) {
-                        vibrator.vibrate(VibrationEffect.createOneShot(5000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
+                        if(intensity<128) intensity=128;  //pixel3a doesn't seem to trigger for less than 128 amplitude...
+                        vibrator.vibrate(VibrationEffect.createOneShot(2000, intensity));  //vibe a long time to simulate how buzz works - keeps vibing until gets new command
                     }
                     else {
                         //TODO: implement something for phones without amplitude control...
-                        vibrator.vibrate(VibrationEffect.createOneShot(5000, VibrationEffect.DEFAULT_AMPLITUDE));
+                        vibrator.vibrate(VibrationEffect.createOneShot(2000, VibrationEffect.DEFAULT_AMPLITUDE));
                     }
                 }
             }
+        }
+
+        if(blessedNeo != null) {
+            return(blessedNeo.vibrateMotors(v));
         }
 
         return true;

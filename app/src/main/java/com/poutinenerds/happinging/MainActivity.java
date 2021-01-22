@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     private NeoVibe neoVibe = null;
 
     // Variable to track whether or not the wristband should be vibrating
-    private static boolean vibrating = false;
+    //private static boolean vibrating = false;
     private static boolean disconnectRequested = false; // used for requesting a disconnect within our thread
     Runnable vibratingPattern;
     Thread vibratingPatternThread;
@@ -108,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
     // Holds pattern name;
     private String patternname = "JB-Ping";
+
+    private enum patterns {STOPPED, SWEEP_AND_NOTIFY_DYNAMIC, SWEEP_AND_NOTIFY, ADAPTIVE_BOUNDED_SWEEP, BOUNDED_SWEEP, FAST_AND_SWEEP}
+    patterns curPattern = patterns.STOPPED;
+    patterns mostRecentPattern = patterns.BOUNDED_SWEEP; //if user turns off vibration temporarily, need to remember what they had selected in case they restart it
 
 
     @Override
@@ -177,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
         // Create the vibrating pattern thread (but don't start it yet)
 
-        vibratingPattern = new PatternFastAndSweep();
+        vibratingPattern = new PatternBoundedSweep();
         //  vibratingPattern = new VibratingPatternPing(); // Original Jeff's basic ping sweep
 
         //Additional setup
@@ -205,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
         @Override
         public void run() {
-            while (!Thread.currentThread().isInterrupted() && vibrating) {
+            while (!Thread.currentThread().isInterrupted() && curPattern==patterns.SWEEP_AND_NOTIFY_DYNAMIC) {
                 try {
                     //reused Jeff's code.
                     long uptimeStart = uptimeMillis();
@@ -265,6 +269,22 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                     e.printStackTrace();
                 }
             }
+
+            if (disconnectRequested) {
+                Log.i(TAG, "Disconnect requested while thread active");
+                blessedNeo.stopMotors();
+                blessedNeo.resumeDeviceAlgorithm();
+                // When disconnecting: it is possible for the device to process the disconnection request
+                // prior to processing the request to resume the onboard algorithm, which causes the last
+                // sent motor command to "stick"
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                blessedNeo.disconnectNeoDevice();
+                disconnectRequested = false;
+            }
         }
     }
 
@@ -286,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
 
         @Override
         public void run() {
-            while (!Thread.currentThread().isInterrupted() && vibrating) {
+            while (!Thread.currentThread().isInterrupted() && curPattern==patterns.SWEEP_AND_NOTIFY) {
                 try {
                     //reused Jeff's code.
                     long uptimeStart = uptimeMillis();
@@ -465,7 +485,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             boolean renderedIspWorking;
 
             // loop until the thread is interrupted
-            while (!Thread.currentThread().isInterrupted() && vibrating) {
+            while (!Thread.currentThread().isInterrupted() && curPattern==patterns.ADAPTIVE_BOUNDED_SWEEP) {
                 try {
                     //  Perform the async speedTest in a separated thread every cicle
                     // The results probably won't be available in this cycle, but it doesn't matter
@@ -585,7 +605,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
             boolean renderedIspWorking;
 
             // loop until the thread is interrupted
-            while (!Thread.currentThread().isInterrupted() && vibrating) {
+            while (!Thread.currentThread().isInterrupted() && curPattern==patterns.BOUNDED_SWEEP) {
                 try {
                     //  Perform the async speedTest in a separated thread every cicle
                     // The results probably won't be available in this cycle, but it doesn't matter
@@ -676,7 +696,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         public void run() {
             // loop until the thread is interrupted
             int motorID = 0;
-            while (!Thread.currentThread().isInterrupted() && vibrating) {
+            while (!Thread.currentThread().isInterrupted() && curPattern==patterns.FAST_AND_SWEEP) {
                 try {
 
                     if (simulateNetwork) {
@@ -728,8 +748,8 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(BlessedReceiver);
-        if (vibrating) {
-            vibrating = false;
+        if (curPattern!=patterns.STOPPED) {
+            curPattern = patterns.STOPPED;
             disconnectRequested = true;
         }
         blessedNeo = null;
@@ -819,24 +839,29 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
     // User interface functionality //
     //////////////////////////////////
 
+    private void toggleCurPattern() {
+        if (curPattern==patterns.STOPPED) {
+            if (blessedNeo != null) blessedNeo.pauseDeviceAlgorithm();
+            neoVibrateButton.setText("Stop");
+            curPattern = mostRecentPattern;
+            // run the vibrating pattern loop
+            vibratingPatternThread = new Thread(vibratingPattern);
+            vibratingPatternThread.start();
+
+        } else {
+            neoVibrateButton.setText("Start");
+            mostRecentPattern = curPattern;
+            curPattern = patterns.STOPPED;
+            if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
+        }
+    }
+
     private void displayInitialUI() {
         displayReconnectUI();
         neoVibrateButton.setOnClickListener(
                 new View.OnClickListener() {
                     public void onClick(View v) {
-                        if (!vibrating) {
-                            if (blessedNeo != null) blessedNeo.pauseDeviceAlgorithm();
-                            neoVibrateButton.setText("Stop");
-                            vibrating = true;
-                            // run the vibrating pattern loop
-                            vibratingPatternThread = new Thread(vibratingPattern);
-                            vibratingPatternThread.start();
-
-                        } else {
-                            neoVibrateButton.setText("Start");
-                            vibrating = false;
-                            if (blessedNeo != null) blessedNeo.resumeDeviceAlgorithm();
-                        }
+                        toggleCurPattern();
                     }
                 });
         switchSimulateNetwork.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -925,22 +950,48 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         vibPatternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                /*
+                if(vibrating == true) {
+                    vibrating = false; //kill any existing vibration
+                    try {
+                        Thread.sleep(5000); //hack to give loop time to actually exit
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    vibrating = true; //make new pattern vibe as soon as it is created
+                }
+                */
+                boolean autoRestart=false; //should automatically start new mode...
+                if(curPattern!=patterns.STOPPED) {
+                    autoRestart = true;
+                    toggleCurPattern(); //turn off current pattern
+                }
                 switch(parent.getItemAtPosition(position).toString())   {
                     case "Fast and Sweep":
+                        mostRecentPattern = patterns.FAST_AND_SWEEP;
                         vibratingPattern = new PatternFastAndSweep();
                         break;
                     case "Adaptive Bounded Sweep":
+                        mostRecentPattern = patterns.ADAPTIVE_BOUNDED_SWEEP;
                         vibratingPattern = new PatternAdaptiveBoundedSweep();
                         break;
                     case "Bounded Sweep":
+                        mostRecentPattern = patterns.BOUNDED_SWEEP;
                         vibratingPattern = new PatternBoundedSweep();
                         break;
                     case "Sweep and Notify":
+                        mostRecentPattern = patterns.SWEEP_AND_NOTIFY;
                         vibratingPattern = new PatternSweepAndNotify();
                         break;
                     case "Sweep and Notify Dynamic":
+                        mostRecentPattern = patterns.SWEEP_AND_NOTIFY_DYNAMIC;
                         vibratingPattern = new PatternSweepAndNotifyDynamic();
                         break;
+                }
+                curPattern = patterns.STOPPED;
+                if(autoRestart) {
+                    //Need short sleep here so doesn't toggle too quickly?
+                    toggleCurPattern(); //turn on the new mode...
                 }
             }
 
@@ -976,7 +1027,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         neoConnectButton.setOnClickListener(
                 new View.OnClickListener() {
                     public void onClick(View v) {
-                        if (!vibrating) {
+                        if (curPattern==patterns.STOPPED) {
                             blessedNeo.disconnectNeoDevice();
                         } else {
                             // If motors are vibrating (in the VibratingPattern thread in this case) and we want
@@ -984,7 +1035,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
                             // disconnect to be processed prior to stopping the motors. See the VibratingPattern
                             // definition.
                             disconnectRequested = true;
-                            vibrating = false;
+                            curPattern = patterns.STOPPED;
                         }
                     }
                 });
@@ -997,7 +1048,7 @@ public class MainActivity extends AppCompatActivity implements OnDataSendToActiv
         neoConnectButton.setOnClickListener(
                 new View.OnClickListener() {
                     public void onClick(View v) {
-                        if (vibrating) {  //don't allow connecting to band if vibing already started TODO: just grey out button rather than ignore it...
+                        if (curPattern!=patterns.STOPPED) {  //don't allow connecting to band if vibing already started TODO: just grey out button rather than ignore it...
                             Log.w(TAG, "Preventing buzz connection because vibration is already running, and this causes weirdness.");
                             return;
                         }

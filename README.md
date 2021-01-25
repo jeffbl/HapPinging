@@ -23,7 +23,7 @@ Here is a step by step guide that will help you get started feeling your network
    4. Click the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button. Successful connection should be acknowledged with a brief popup message, the “SCAN AND CONNECT TO NEOSENSORY BUZZ” button changing to a “DISCONNECT” button, and the appearance of debug information in the Neosensory Command Line Interface at the bottom of the application’s graphical user interface.
 
 3. Select an Operation Mode
-Using the dropdown menu, select an operation mode. If it is your first time using HapPing, we recommend that you begin with the Bounded Sweep mode. You can find information about the different operation modes below. TIP: Stop the presentation of vibrations before changing operation modes!
+Using the dropdown menu, select an operation mode. If it is your first time using HapPing, we recommend that you begin with the Bounded Sweep mode. You can find information about the different operation modes below.
 
 4. Start the Vibrations
 Click the “START” button to start feeling vibrations every few seconds corresponding to the operation mode you selected. To help you get a sense of what you are currently experiencing, you can take a look at the Network Status information section and the detailed operation mode information.
@@ -124,7 +124,7 @@ One long (2 s) pulse on actuators #3 and #4.
 # TO DO
 Implementation of network monitoring and vibration rendering as foreground service.
 
-Allow rendering to be switched without first manually turning it off before selecting the new one.
+DONE: Allow rendering to be switched without first manually turning it off before selecting the new one.
 
 # THANKS
 Thanks to [Neosensory](http://neosensory.com) for supplying us with a Buzz as part of the [Neoedge Hackster.io developer competition](https://www.hackster.io/contests/neoedge). This project is based on a fork of [Neosensory's Android demo application](https://github.com/neosensory/neosensory-sdk-for-android-java).
